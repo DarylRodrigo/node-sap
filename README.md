@@ -1,27 +1,17 @@
-Number Formatter
+SAP API wrapper
 =========
 [![CircleCI](https://circleci.com/gh/DarylRodrigo/sap/tree/master.svg?style=svg)](https://circleci.com/gh/DarylRodrigo/sap/tree/master)
 
-A small library that adds commas to numbers
+A small library to easily use SAPs API
 
 ## Installation
 
-  `npm install @jdaudier/number-formatter`
+  `npm install `
 
 ## Usage
 
-    var numFormatter = require('@jdaudier/number-formatter');
-
-    var formattedNum = numFormatter(35666);
-  
-  
-  Output should be `35,666`
-
+    `var sap = require('sap')(options)`
 
 ## Tests
 
   `npm test`
-
-## Contributing
-
-In lieu of a formal style guide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code.
