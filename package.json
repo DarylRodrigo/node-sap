@@ -18,9 +18,14 @@
   "bugs": {
     "url": "https://github.com/DarylRodrigo/sap/issues"
   },
+  "engines": {
+    "node": ">=4.2.4"
+  },
   "homepage": "https://github.com/DarylRodrigo/sap#readme",
   "devDependencies": {
     "chai": "^3.5.0",
+    "coveralls": "^2.11.14",
+    "istanbul": "^0.4.5",
     "mocha": "^3.0.2"
   }
 }
