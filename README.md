@@ -1,10 +1,8 @@
 Number Formatter
 =========
+[![CircleCI](https://circleci.com/gh/DarylRodrigo/sap/tree/master.svg?style=svg)](https://circleci.com/gh/DarylRodrigo/sap/tree/master)
+
 A small library that adds commas to numbers
-
-## Current Status
-
-[![CircleCI](https://circleci.com/gh/DarylRodrigo/sap.svg?style=svg)](https://circleci.com/gh/DarylRodrigo/sap)
 
 ## Installation
 
