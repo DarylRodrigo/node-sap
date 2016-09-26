@@ -24,30 +24,10 @@ function sap(options) {
   }
 }
 
-
-/**
- * Sends a given request as a JSON object to the SAP API and finally
- * calls the given callback function with the resulting JSON object. This
- * method should not be called directly but will be used internally by all API
- * methods defined.
- *
- * @param method MailChimp API method to call
- * @param availableParams Parameters available for the specified API method
- * @param givenParams Parameters to call the MailChimp API with
- * @param callback Callback function to call on success
- */
-
 sap.prototype.execute = function (method, path, params, callback) {
-  var finalParams = {};
-  var currentParam;
+  var finalParams = params || {};
 
-  for (var i = 0; i < availableParams.length; i++) {
-    currentParam = availableParams[i];
-    if (typeof givenParams[currentParam] !== 'undefined')
-      finalParams[currentParam] = givenParams[currentParam];
-  }
-
-  request({
+  Request({
     uri : this.httpUri+'/'+this.version+'/' + path + '?access_token=' + this.access_token,
     method: method,
     headers: [
@@ -55,14 +35,21 @@ sap.prototype.execute = function (method, path, params, callback) {
         name: 'content-type',
         value: 'application/x-www-form-urlencoded'
       }
-    ]
+    ],
     body : encodeURIComponent(JSON.stringify(finalParams))
   }, function (error, response, body) {
-    helpers.handleMailChimpResponse(error, response, body, callback);
+    callback(error, response, body);
   });
 };
 
+sap.prototype.getCustomers = function (cb) {
+  this.execute("GET", "Customers", {}, function(error, response, body) {
+    cb(error, response, body);
+  });
+}
+
 sap.prototype.getAccessToken = function () {
+
   Request({
     uri : "https://my-eu.sapanywhere.com:443/oauth2/token?client_id=" + this.client_id + "&client_secret=" + this.client_secret + "&grant_type=refresh_token&refresh_token=" +this.refresh_token,
     method: "POST",
@@ -72,12 +59,13 @@ sap.prototype.getAccessToken = function () {
         value: 'application/x-www-form-urlencoded'
       }
     ]
-  }, function (error, response, body) {
+  }, (error, response, body) => {
     var data = JSON.parse(body);
     if (error) {
       console.error("Incorrect authentication details")
+    } else {
+      this.access_token = data.access_token;
     }
-    this.access_token = data.access_token;
   });
 };
 
