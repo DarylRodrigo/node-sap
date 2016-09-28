@@ -13,7 +13,7 @@ describe('Access Token', function() {
     setTimeout(function() {
       should.exist(sap.access_token);
       done();
-    }, 1000)
+    }, 1000);
   });
 });
 
