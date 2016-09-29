@@ -13,7 +13,7 @@ function sap(options) {
   if (!options) {
     console.error("SAP - Please provide options.")
   } else if (!options.client_id || !options.client_secret || !options.refresh_token) {
-    console.error("SAP - insufficient credentials.")
+    console.error("SAP - Insufficient credentials.")
   } else {
     this.client_id = options.client_id;
     this.client_secret = options.client_secret;
@@ -32,7 +32,7 @@ sap.prototype.getAccessToken = function (callback) {
   function cb(err, res, body) {
     var data = JSON.parse(body);
 
-    if (!err) {
+    if (!err && res.statusCode === 200) {
       this.access_token = body.access_token;
     } else {
       console.error(err);

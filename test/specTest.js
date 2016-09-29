@@ -6,22 +6,69 @@ var expect = require('chai').expect;
 var should = require('chai').should();
 var request = require('request');
 
-var sap = require('../index')(auth);
+describe('SAP module', function () {
+  var sap;
 
-describe('getAccessToken', function() {
-  var postRequest;
+  function initModule(auth) {
+    sap = require('../index')(auth);
+  }
 
   beforeEach(function () {
-    postRequest = sinon.stub(request, 'post');
+    sap = undefined;
+    initModule(auth);
   });
 
-  afterEach(function () {
-    postRequest.restore();
+  describe('initialization', function () {
+    var error;
+
+    beforeEach(function () {
+      error = sinon.stub(console, 'error');
+    });
+
+    afterEach(function () {
+      error.restore();
+    });
+
+    it('sets auth options', sinon.test(function () {
+      should.exist(sap.client_id);
+      should.exist(sap.client_secret);
+      should.exist(sap.refresh_token);
+    }));
+
+    describe('when no options are passed', function () {
+      it('logs an error to the console', function () {
+        sap = undefined;
+        initModule();
+
+        sinon.assert.calledOnce(error);
+      });
+    });
+
+    describe('when insufficient options are passed', function () {
+      it('logs an error to the console', function () {
+        sap = undefined;
+        initModule({ client_id: 'foo', client_secret: 'bar' });
+
+        sinon.assert.calledOnce(error);
+      });
+    });
   });
 
-  it('sends a POST request', function() {
-    sap.getAccessToken();
+  describe('getAccessToken', function() {
+    var postRequest;
 
-    sinon.assert.calledOnce(postRequest);
+    beforeEach(function () {
+      postRequest = sinon.stub(request, 'post');
+    });
+
+    afterEach(function () {
+      postRequest.restore();
+    });
+
+    it('sends a POST request', function() {
+      sap.getAccessToken();
+
+      sinon.assert.calledOnce(postRequest);
+    });
   });
 });

@@ -4,7 +4,9 @@
   "description": "SAP api integration tool",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --reporter nyan"
+    "test": "mocha",
+    "unit-tests": "mocha test/specTest.js",
+    "integration-tests": "mocha test/integrationTest.js"
   },
   "repository": {
     "type": "git",
