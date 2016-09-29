@@ -20,8 +20,9 @@ describe('Access Token', function() {
 describe('Customers', function() {
   it('Should get all Customers', function(done) {
     sap.getCustomers(function(err, res, body) {
-        expect(body.length).to.not.equal(0);
-        done();
+      expect(res.statusCode).to.equal(200);
+      expect(body.length).to.not.equal(0);
+      done();
     });
   });
 });
