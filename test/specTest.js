@@ -29,11 +29,11 @@ describe('SAP module', function () {
       error.restore();
     });
 
-    it('sets auth options', sinon.test(function () {
+    it('sets auth options', function () {
       should.exist(sap.client_id);
       should.exist(sap.client_secret);
       should.exist(sap.refresh_token);
-    }));
+    });
 
     describe('when no options are passed', function () {
       it('logs an error to the console', function () {
@@ -55,20 +55,11 @@ describe('SAP module', function () {
   });
 
   describe('getAccessToken', function() {
-    var postRequest;
-
-    beforeEach(function () {
-      postRequest = sinon.stub(request, 'post');
-    });
-
-    afterEach(function () {
-      postRequest.restore();
-    });
-
-    it('sends a POST request', function() {
+    it('sends a POST request', sinon.test(function() {
+      var postRequest = this.stub(request, 'post');
       sap.getAccessToken();
 
       sinon.assert.calledOnce(postRequest);
-    });
+    }));
   });
 });
