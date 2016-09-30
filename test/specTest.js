@@ -7,15 +7,6 @@ var expect = require('chai').expect;
 var should = require('chai').should();
 var request = require('request');
 
-var mockAPI = nock('https://my-eu.sapanywhere.com:443/oauth2', {
-    reqheaders: { 'content-type': 'application/x-www-form-urlencoded' }
-  })
-  .persist()
-  .post('/token?client_id=' + credentials.client_id + '&client_secret=' + credentials.client_secret + '&grant_type=refresh_token&refresh_token=' + credentials.refresh_token)
-  .reply(200, function () {
-    console.log('YAY');
-  });
-
 describe('SAP module', function () {
   var sap,
     consoleError,
@@ -23,11 +14,20 @@ describe('SAP module', function () {
     res = { statusCode: 200, body: { access_token: 123 } },
     err = new Error('Test error');
 
+  var mockAPI = nock('https://my-eu.sapanywhere.com:443/oauth2', {
+      reqheaders: { 'content-type': 'application/x-www-form-urlencoded' }
+    })
+    .persist()
+    .post('/token?client_id=' + credentials.client_id + '&client_secret=' + credentials.client_secret + '&grant_type=refresh_token&refresh_token=' + credentials.refresh_token)
+    .reply(200, {
+      access_token: 'foo'
+    });
+
   function initModule(credentials) {
     sap = undefined;
     sap = require('../index')(credentials);
   }
-
+  this.timeout(30000);
   beforeEach(function () {
     initModule(credentials);
     consoleError = sinon.stub(console, 'error');
@@ -38,10 +38,15 @@ describe('SAP module', function () {
   });
 
   describe('initialization', function () {
-    it('sets auth options', function () {
+    it('sets auth options', function (done) {
       should.exist(sap.client_id);
       should.exist(sap.client_secret);
       should.exist(sap.refresh_token);
+
+      setTimeout(function () {
+        expect(sap.access_token).to.equal('foo');
+        done();
+      }, 100);
     });
 
     describe('when no options are passed', function () {
@@ -63,7 +68,7 @@ describe('SAP module', function () {
 
   describe('getAccessToken', function() {
     it('sends a POST request', sinon.test(function() {
-      postRequest = this.stub(request, 'post');
+      postRequest = this.spy(request, 'post');
 
       sap.getAccessToken();
       sinon.assert.calledOnce(postRequest);
@@ -78,6 +83,4 @@ describe('SAP module', function () {
       sinon.assert.calledOnce(consoleError);
     }));
   });
-
-  nock.cleanAll();
 });

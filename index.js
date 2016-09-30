@@ -31,11 +31,11 @@ Sap.prototype.getAccessToken = function (callback) {
     }
   };
 
-  request.post(options, callback || cb);
+  request.post(options, callback || cb.bind(this));
 
   function cb(err, res, body) {
     if (!err && res.statusCode === 200) {
-      this.access_token = body.access_token;
+      this.access_token = JSON.parse(body).access_token;
     } else {
       console.error(err);
     }
