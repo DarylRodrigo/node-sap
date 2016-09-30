@@ -1,6 +1,6 @@
 'use strict';
 
-var auth = require('./auth.json');
+var credentials = require('./auth.json');
 var sinon = require('sinon');
 var expect = require('chai').expect;
 var should = require('chai').should();
@@ -13,13 +13,13 @@ describe('SAP module', function () {
     res = { statusCode: 200, body: { access_token: 123 } },
     err = new Error('Test error');
 
-  function initModule(auth) {
+  function initModule(credentials) {
     sap = undefined;
-    sap = require('../index')(auth);
+    sap = require('../index')(credentials);
   }
 
   beforeEach(function () {
-    initModule(auth);
+    initModule(credentials);
     consoleError = sinon.stub(console, 'error');
   });
 
