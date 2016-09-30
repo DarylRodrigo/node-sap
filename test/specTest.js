@@ -7,28 +7,27 @@ var should = require('chai').should();
 var request = require('request');
 
 describe('SAP module', function () {
-  var sap;
+  var sap,
+    consoleError,
+    postRequest,
+    res = { statusCode: 200, body: { access_token: 123 } },
+    err = new Error('Test error');
 
   function initModule(auth) {
+    sap = undefined;
     sap = require('../index')(auth);
   }
 
   beforeEach(function () {
-    sap = undefined;
     initModule(auth);
+    consoleError = sinon.stub(console, 'error');
+  });
+
+  afterEach(function () {
+    consoleError.restore();
   });
 
   describe('initialization', function () {
-    var error;
-
-    beforeEach(function () {
-      error = sinon.stub(console, 'error');
-    });
-
-    afterEach(function () {
-      error.restore();
-    });
-
     it('sets auth options', function () {
       should.exist(sap.client_id);
       should.exist(sap.client_secret);
@@ -37,29 +36,36 @@ describe('SAP module', function () {
 
     describe('when no options are passed', function () {
       it('logs an error to the console', function () {
-        sap = undefined;
         initModule();
 
-        sinon.assert.calledOnce(error);
+        sinon.assert.calledOnce(consoleError);
       });
     });
 
     describe('when insufficient options are passed', function () {
       it('logs an error to the console', function () {
-        sap = undefined;
         initModule({ client_id: 'foo', client_secret: 'bar' });
 
-        sinon.assert.calledOnce(error);
+        sinon.assert.calledOnce(consoleError);
       });
     });
   });
 
   describe('getAccessToken', function() {
     it('sends a POST request', sinon.test(function() {
-      var postRequest = this.stub(request, 'post');
-      sap.getAccessToken();
+      postRequest = this.stub(request, 'post');
 
+      sap.getAccessToken();
       sinon.assert.calledOnce(postRequest);
+    }));
+
+    it('logs an error to the console', sinon.test(function () {
+      postRequest = this.stub(request, 'post');
+      postRequest.yields(err, null, null);
+
+      sap.getAccessToken();
+      should.not.exist(sap.access_token);
+      sinon.assert.calledOnce(consoleError);
     }));
   });
 });

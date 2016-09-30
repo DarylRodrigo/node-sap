@@ -18,6 +18,8 @@ function sap(options) {
     this.client_id = options.client_id;
     this.client_secret = options.client_secret;
     this.refresh_token = options.refresh_token;
+
+    this.getAccessToken();
   }
 }
 
@@ -29,17 +31,15 @@ sap.prototype.getAccessToken = function (callback) {
     }
   };
 
-  function cb(err, res, body) {
-    var data = JSON.parse(body);
+  request.post(options, callback || cb);
 
+  function cb(err, res, body) {
     if (!err && res.statusCode === 200) {
       this.access_token = body.access_token;
     } else {
       console.error(err);
     }
   }
-
-  request.post(options, callback || cb);
 };
 
 module.exports = function (options) {
