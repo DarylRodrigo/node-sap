@@ -1,10 +1,20 @@
 'use strict';
 
+var nock = require('nock');
 var credentials = require('./auth.json');
 var sinon = require('sinon');
 var expect = require('chai').expect;
 var should = require('chai').should();
 var request = require('request');
+
+var mockAPI = nock('https://my-eu.sapanywhere.com:443/oauth2', {
+    reqheaders: { 'content-type': 'application/x-www-form-urlencoded' }
+  })
+  .persist()
+  .post('/token?client_id=' + credentials.client_id + '&client_secret=' + credentials.client_secret + '&grant_type=refresh_token&refresh_token=' + credentials.refresh_token)
+  .reply(200, function () {
+    console.log('YAY');
+  });
 
 describe('SAP module', function () {
   var sap,
@@ -68,4 +78,6 @@ describe('SAP module', function () {
       sinon.assert.calledOnce(consoleError);
     }));
   });
+
+  nock.cleanAll();
 });
