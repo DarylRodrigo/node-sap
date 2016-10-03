@@ -8,30 +8,10 @@ var request = require('request');
 
 describe('SAP module', function () {
   var sap,
-    consoleError;
-
-  var mockAPI = nock('https://my-eu.sapanywhere.com:443/oauth2', {
-      reqheaders: { 'content-type': 'application/x-www-form-urlencoded' }
-    })
-    .persist()
-    .post('/token?client_id=' + credentials.client_id + '&client_secret=' + credentials.client_secret + '&grant_type=refresh_token&refresh_token=' + credentials.refresh_token)
-    .reply(200, {
-      'access_token': 'mock_token'
-    });
-
-  var incorrectAPI = nock('https://my-eu.sapanywhere.com:443/oauth2', {
-      reqheaders: { 'content-type': 'application/x-www-form-urlencoded' }
-    })
-    .post('/token?client_id=' + 'incorrect' + '&client_secret=' + 'incorrect' + '&grant_type=refresh_token&refresh_token=' + 'incorrect')
-    .reply(200, {
-      'error': 'mock_error',
-      'error_description': 'Mock error description'
-    });
-
-  function initModule(credentials) {
-    sap = undefined;
-    sap = require('../index')(credentials);
-  }
+    consoleError,
+    mockAPI,
+    incorrectAPI,
+    initModule;
 
   beforeEach(function () {
     initModule(credentials);
@@ -43,11 +23,13 @@ describe('SAP module', function () {
   });
 
   describe('initialization', function () {
-    it('sets auth options', function (done) {
+    it('sets the credentials', function () {
       expect(sap.client_id).to.exist;
       expect(sap.client_secret).to.exist;
       expect(sap.refresh_token).to.exist;
+    });
 
+    it('sets the access token', function (done) {
       setTimeout(function () {
         expect(sap.access_token).to.equal('mock_token');
         done();
@@ -80,4 +62,27 @@ describe('SAP module', function () {
       });
     });
   });
+
+  mockAPI = nock('https://my-eu.sapanywhere.com:443/oauth2', {
+      reqheaders: { 'content-type': 'application/x-www-form-urlencoded' }
+    })
+    .persist()
+    .post('/token?client_id=' + credentials.client_id + '&client_secret=' + credentials.client_secret + '&grant_type=refresh_token&refresh_token=' + credentials.refresh_token)
+    .reply(200, {
+      'access_token': 'mock_token'
+    });
+
+  incorrectAPI = nock('https://my-eu.sapanywhere.com:443/oauth2', {
+      reqheaders: { 'content-type': 'application/x-www-form-urlencoded' }
+    })
+    .post('/token?client_id=' + 'incorrect' + '&client_secret=' + 'incorrect' + '&grant_type=refresh_token&refresh_token=' + 'incorrect')
+    .reply(200, {
+      'error': 'mock_error',
+      'error_description': 'Mock error description'
+    });
+
+  initModule = function (credentials) {
+    sap = undefined;
+    sap = require('../index')(credentials);
+  }
 });
