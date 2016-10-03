@@ -6,6 +6,7 @@ var credentials = require('../../auth.json');
 module.exports = {
   credentials: credentials,
 
+  // IDEA: extract to single method that takes variable options
   authEndpoint: nock('https://my-eu.sapanywhere.com:443/oauth2', {
       reqheaders: { 'content-type': 'application/x-www-form-urlencoded' }
     })
@@ -22,5 +23,11 @@ module.exports = {
     .reply(200, {
       'error': 'mock_error',
       'error_description': 'Mock error description'
-    })
+    }),
+
+  endpoint: function (options) {
+    nock(options.url)
+      .get('/'+ options.version +'/'+ options.path +'?access_token='+ options.access_token)
+      .reply(options.statusCode, options.expectedResult);
+  }
 }

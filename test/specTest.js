@@ -1,6 +1,7 @@
 'use strict';
 
 var mockAPI = require('./helpers/mockAPI.js');
+var nock = require('nock');
 var credentials = require('../auth.json');
 var sinon = require('sinon');
 var expect = require('chai').expect;
@@ -19,6 +20,10 @@ describe('SAP module', function () {
   afterEach(function () {
     consoleError.restore();
   });
+
+  after(function () {
+    nock.cleanAll();
+  })
 
   describe('initialization', function () {
     it('sets the credentials', function () {
@@ -60,6 +65,27 @@ describe('SAP module', function () {
       });
     });
   });
+
+  describe('execute', function () {
+    it('passes the response to a callback function', function () {
+      var path = 'Currencies',
+          expectedResult = { id: 'Hello' },
+          statusCode = 200,
+          mock = mockAPI.endpoint({
+            url: sap.httpUri,
+            version: sap.version,
+            path: path,
+            access_token: sap.access_token,
+            statusCode: statusCode,
+            expectedResult: expectedResult
+          });
+
+      sap.execute('GET', '/'+path, null, function (err, res, body) {
+        expect(res.statusCode).to.equal(statusCode);
+        expect(JSON.parse(body)).to.equal(expectedResult);
+      });
+    });
+  })
 
   initModule = function (credentials) {
     sap = undefined;

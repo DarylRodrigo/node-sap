@@ -3,12 +3,12 @@
 var request = require('request');
 
 function Sap(credentials) {
-  this.expires_in     = 43199;
-  this.scope          = "BusinessData_R BusinessData_RW auth:tenant:766";
-  this.token_type     = "bearer";
+  this.expires_in = 43199;
+  this.scope      = "BusinessData_R BusinessData_RW auth:tenant:766";
+  this.token_type = "bearer";
 
-  this.httpUri        = "https://api-eu.sapanywhere.com:443";
-  this.version        = "v1";
+  this.httpUri    = "https://api-eu.sapanywhere.com:443";
+  this.version    = "v1";
 
   if (!credentials) {
     console.error(new Error("SAP - Please provide credentials."));
@@ -30,6 +30,16 @@ function Sap(credentials) {
     }
   }
 }
+
+Sap.prototype.execute = function (method, path, params, callback) {
+  var options = {
+    method: method,
+    url: this.httpUri +'/'+ this.version +'/'+ path +'?access_token='+ this.access_token,
+    body: encodeURIComponent(JSON.stringify(params))
+  };
+
+  request(options, callback);
+};
 
 function getAccessToken(credentials, callback) {
   var options = {
