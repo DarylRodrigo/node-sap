@@ -1,6 +1,6 @@
 'use strict';
 
-var credentials = require('./auth.json');
+var credentials = require('../auth.json');
 var expect = require('chai').expect;
 
 describe('API integration', function () {
