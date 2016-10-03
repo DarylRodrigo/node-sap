@@ -11,36 +11,43 @@ function Sap(credentials) {
   this.version        = "v1";
 
   if (!credentials) {
-    console.error("SAP - Please provide credentials.")
+    console.error(new Error("SAP - Please provide credentials."));
   } else if (!credentials.client_id || !credentials.client_secret || !credentials.refresh_token) {
-    console.error("SAP - Insufficient credentials.")
+    console.error(new Error("SAP - Insufficient credentials."));
   } else {
     this.client_id = credentials.client_id;
     this.client_secret = credentials.client_secret;
     this.refresh_token = credentials.refresh_token;
 
-    this.getAccessToken();
+    getAccessToken(credentials, callback.bind(this));
+
+    function callback(err, data) {
+      if (err) {
+        console.error(err);
+      } else {
+        this.access_token = data.access_token;
+      }
+    }
   }
 }
 
-Sap.prototype.getAccessToken = function (callback) {
+function getAccessToken(credentials, callback) {
   var options = {
-    url: 'https://my-eu.sapanywhere.com:443/oauth2/token?client_id=' + this.client_id + '&client_secret=' + this.client_secret + '&grant_type=refresh_token&refresh_token=' +this.refresh_token,
-    headers: {
-      'content-type': 'application/x-www-form-urlencoded'
-    }
-  };
+      method: 'POST',
+      url: 'https://my-eu.sapanywhere.com:443/oauth2/token?client_id=' + credentials.client_id + '&client_secret=' + credentials.client_secret + '&grant_type=refresh_token&refresh_token=' +credentials.refresh_token,
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded'
+      }
+    };
 
-  request.post(options, callback || cb.bind(this));
+  request(options, function (err, res, body) {
+    var data = JSON.parse(body);
 
-  function cb(err, res, body) {
-    if (!err && res.statusCode === 200) {
-      this.access_token = JSON.parse(body).access_token;
-    } else {
-      console.error(err);
-    }
-  }
-};
+    if (!err && data.error) err = new Error(data.error_description);
+
+    callback(err, data);
+  });
+}
 
 module.exports = function (credentials) {
   return new Sap(credentials);

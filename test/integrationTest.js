@@ -2,17 +2,23 @@
 
 var credentials = require('./auth.json');
 var expect = require('chai').expect;
-var should = require('chai').should();
 
 describe('API integration', function () {
-  var sap = require('../index')(credentials);
+  var sap;
 
-  describe('getAccessToken', function() {
-    it('gets an authentication token', function(done) {
-      sap.getAccessToken(function (err, res, body) {
-        should.exist(JSON.parse(body).access_token);
-        done();
-      });
-    });
+  this.timeout(3000);
+
+  function initModule(credentials) {
+    sap = undefined;
+    sap = require('../index')(credentials);
+  }
+
+  it('Should create authentication token', function(done) {
+    initModule(credentials);
+
+    setTimeout(function() {
+      expect(sap.access_token).to.exist;
+      done();
+    }, 1000)
   });
 });
