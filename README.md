@@ -1,27 +1,33 @@
-Number Formatter
+SAP API wrapper
 =========
 [![CircleCI](https://circleci.com/gh/DarylRodrigo/sap/tree/master.svg?style=svg)](https://circleci.com/gh/DarylRodrigo/sap/tree/master)
 
-A small library that adds commas to numbers
+A small library to easily use SAP's API
 
 ## Installation
 
-  `npm install @jdaudier/number-formatter`
+```sh
+$ git clone https://github.com/DarylRodrigo/sap.git
+$ cd sap
+$ npm install
+```
 
 ## Usage
 
-    var numFormatter = require('@jdaudier/number-formatter');
+Include the following line at the top of your file:
 
-    var formattedNum = numFormatter(35666);
-  
-  
-  Output should be `35,666`
-
+`var sap = require('sap')(options)`
 
 ## Tests
 
-  `npm test`
+Unit and integration tests should be run separately to avoid conflicts with mocked HTTP requests using [nock](https://github.com/node-nock/nock):
 
-## Contributing
+```sh
+# Run unit tests
+$ `npm test`
+# or
+$ `npm run unit-tests`
 
-In lieu of a formal style guide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code.
+# Run integration tests
+$ `npm run integration-tests`
+```
