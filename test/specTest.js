@@ -16,15 +16,16 @@ describe('SAP module', function () {
     .persist()
     .post('/token?client_id=' + credentials.client_id + '&client_secret=' + credentials.client_secret + '&grant_type=refresh_token&refresh_token=' + credentials.refresh_token)
     .reply(200, {
-      access_token: 'mock_token'
+      'access_token': 'mock_token'
     });
 
   var incorrectAPI = nock('https://my-eu.sapanywhere.com:443/oauth2', {
       reqheaders: { 'content-type': 'application/x-www-form-urlencoded' }
     })
-    .post('/token?client_id=incorrect')
+    .post('/token?client_id=' + 'incorrect' + '&client_secret=' + 'incorrect' + '&grant_type=refresh_token&refresh_token=' + 'incorrect')
     .reply(200, {
-      access_token: 'mock_token'
+      'error': 'mock_error',
+      'error_description': 'Mock error description'
     });
 
   function initModule(credentials) {
@@ -64,6 +65,18 @@ describe('SAP module', function () {
       it('logs an error to the console', function () {
         initModule({ client_id: 'foo', client_secret: 'bar' });
         sinon.assert.calledOnce(consoleError);
+      });
+    });
+
+    describe('when unable to get an access token', function () {
+      it('logs an error to the console', function (done) {
+        initModule({ client_id: 'incorrect', client_secret: 'incorrect', refresh_token: 'incorrect'});
+
+        setTimeout(function () {
+          sinon.assert.calledOnce(consoleError);
+          expect(incorrectAPI.isDone()).to.be.true;
+          done();
+        }, 100);
       });
     });
   });
