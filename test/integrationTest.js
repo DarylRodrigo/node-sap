@@ -20,8 +20,12 @@ describe('API integration', function () {
   describe('execute', function () {
     it('sends custom HTTP requests', function (done) {
       sap.execute('GET', 'Currencies', null, function (err, res, body) {
+        var data;
+        if (body) data = JSON.parse(body);
+
         expect(res.statusCode).to.equal(200);
-        expect(JSON.parse(body).length).to.be.above(0);
+        expect(data.length).to.be.above(0);
+        expect(data.error).not.to.exist;
         done();
       });
     });
