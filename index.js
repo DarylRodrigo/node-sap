@@ -1,6 +1,7 @@
 'use strict';
 
 var request = require('request');
+require('es6-promise').polyfill();
 
 function Sap(credentials) {
   this.expires_in = 43199;
@@ -15,31 +16,44 @@ function Sap(credentials) {
   } else if (!credentials.client_id || !credentials.client_secret || !credentials.refresh_token) {
     console.error(new Error("SAP - Insufficient credentials."));
   } else {
-    this.client_id      = credentials.client_id;
-    this.client_secret  = credentials.client_secret;
-    this.refresh_token  = credentials.refresh_token;
-
-    // FIXME: sets access token asynchronously
-    getAccessToken(credentials, callback.bind(this));
-
-    function callback(err, data) {
-      if (err) {
-        console.error(err);
-      } else {
-        this.access_token = data.access_token;
-      }
-    }
+    this.credentials = credentials;
   }
 }
 
 Sap.prototype.execute = function (method, path, params, callback) {
-  var options = {
-    method: method,
-    url: this.httpUri +'/'+ this.version +'/'+ path +'?access_token='+ this.access_token,
-    body: encodeURIComponent(JSON.stringify(params))
-  };
+  var that = this;
 
-  request(options, callback);
+  var tokenPromise = new Promise(function (resolve, reject) {
+    var accessToken;
+
+    if (that.access_token) {
+      resolve();
+    } else {
+      getAccessToken(that.credentials, function (err, data) {
+        if (err) {
+          reject(err);
+        } else {
+          that.access_token = data.access_token;
+          resolve();
+        }
+      })
+    }
+  });
+
+  tokenPromise.then(function (data) {
+    var options = {
+      method: method,
+      url: that.httpUri +'/'+ that.version +'/'+ path +'?access_token='+ that.access_token,
+      body: encodeURIComponent(JSON.stringify(params))
+    };
+
+    request(options, function (err, res, body) {
+      callback(err, res, body);
+    });
+
+  }, function (err) {
+    callback(err);
+  });
 };
 
 function getAccessToken(credentials, callback) {
@@ -54,10 +68,12 @@ function getAccessToken(credentials, callback) {
     };
 
   request(options, function (err, res, body) {
-    var data = JSON.parse(body);
-    if (!err && data.error) err = new Error(data.error_description);
+    var error = err;
+    var data  = JSON.parse(body);
 
-    callback(err, data);
+    if (!error && data.error) error = new Error(data.error_description);
+
+    callback(error, data);
   });
 }
 

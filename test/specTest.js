@@ -1,11 +1,9 @@
 'use strict';
 
-var mockAPI = require('./helpers/mockAPI.js');
 var nock = require('nock');
 var credentials = require('../auth.json');
 var sinon = require('sinon');
 var expect = require('chai').expect;
-var request = require('request');
 
 describe('SAP module', function () {
   var sap,
@@ -27,65 +25,85 @@ describe('SAP module', function () {
 
   describe('initialization', function () {
     it('sets the credentials', function () {
-      expect(sap.client_id).to.exist;
-      expect(sap.client_secret).to.exist;
-      expect(sap.refresh_token).to.exist;
+      expect(sap.credentials).to.exist;
     });
 
-    it('sets the access token', function (done) {
-      setTimeout(function () {
-        expect(sap.access_token).to.equal('mock_token');
-        done();
-      }, 100);
-    });
-
-    describe('when no options are passed', function () {
+    describe('when no credentials are passed', function () {
       it('logs an error to the console', function () {
         initModule();
         sinon.assert.calledOnce(consoleError);
       });
     });
 
-    describe('when insufficient options are passed', function () {
+    describe('when insufficient credentials are passed', function () {
       it('logs an error to the console', function () {
         initModule({ client_id: 'foo', client_secret: 'bar' });
         sinon.assert.calledOnce(consoleError);
       });
     });
+  });
+
+  describe('execute()', function () {
+    var path = 'Customers',
+      mockToken = 'mock_token',
+      statusCode = 200,
+      expectedResult = { 'id': '1' },
+      mockAuth,
+      mockAPI;
+
+    before(function () {
+      mockAuth = nock('https://my-eu.sapanywhere.com:443/oauth2', {
+          reqheaders: { 'content-type': 'application/x-www-form-urlencoded' }
+        })
+        .persist()
+        .post('/token?client_id=' + credentials.client_id + '&client_secret=' + credentials.client_secret + '&grant_type=refresh_token&refresh_token=' + credentials.refresh_token)
+        .reply(200, {
+          'access_token': 'mock_token'
+        });
+    });
+
+    beforeEach(function () {
+      mockAPI = nock(sap.httpUri)
+        .get('/'+ sap.version +'/'+ path +'?access_token='+ mockToken)
+        .reply(statusCode, expectedResult);
+    });
+
+    it('sets the access token', function (done) {
+      sap.execute('GET', path, null, function (err, res, body) {
+        expect(sap.access_token).to.equal(mockToken);
+        done();
+      });
+    });
+
+    it('passes the response to the callback', function (done) {
+      sap.execute('GET', path, null, function (err, res, body) {
+        expect(res.statusCode).to.equal(statusCode);
+        expect(JSON.parse(body)).to.eql(expectedResult);
+        done();
+      });
+    });
 
     describe('when unable to get an access token', function () {
-      it('logs an error to the console', function (done) {
+      it('passes the error to the callback', function (done) {
         initModule({ client_id: 'incorrect', client_secret: 'incorrect', refresh_token: 'incorrect'});
 
-        setTimeout(function () {
-          sinon.assert.calledOnce(consoleError);
-          expect(mockAPI.badAuthEndpoint.isDone()).to.be.true;
+        var badAuth = nock('https://my-eu.sapanywhere.com:443/oauth2', {
+            reqheaders: { 'content-type': 'application/x-www-form-urlencoded' }
+          })
+          .post('/token?client_id=' + 'incorrect' + '&client_secret=' + 'incorrect' + '&grant_type=refresh_token&refresh_token=' + 'incorrect')
+          .reply(200, {
+            'error': 'mock_error',
+            'error_description': 'Mock error description'
+          });
+
+        sap.execute('GET', path, null, function (err, res, body) {
+          expect(err.message).to.eql('Mock error description');
+          expect(badAuth.isDone()).to.be.true;
           done();
-        }, 100);
+        });
       });
     });
   });
-
-  describe('execute', function () {
-    it('passes the response to a callback function', function () {
-      var path = 'Currencies',
-          expectedResult = { id: 'Hello' },
-          statusCode = 200,
-          mock = mockAPI.endpoint({
-            url: sap.httpUri,
-            version: sap.version,
-            path: path,
-            access_token: sap.access_token,
-            statusCode: statusCode,
-            expectedResult: expectedResult
-          });
-
-      sap.execute('GET', '/'+path, null, function (err, res, body) {
-        expect(res.statusCode).to.equal(statusCode);
-        expect(JSON.parse(body)).to.equal(expectedResult);
-      });
-    });
-  })
 
   initModule = function (credentials) {
     sap = undefined;

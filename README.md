@@ -28,12 +28,13 @@ Include the following line at the top of your file, where `credentials` points t
 
 ## Tests
 
-Unit and integration tests should be run separately to avoid conflicts with mocked HTTP requests using [nock](https://github.com/node-nock/nock):
+Tests use the [mocha](https://github.com/mochajs/mocha) framework, [chai](https://github.com/chaijs/chai) for BDD-style assertions, [nock](https://github.com/node-nock/nock) for mocking HTTP requests, and [sinon](https://github.com/sinonjs/sinon) for mocking. You can run unit tests and integration tests separately with the following commands:
 
 ```sh
-# Run unit tests
+# Run all tests
 $ `npm test`
-# or
+
+# Run unit tests
 $ `npm run unit-tests`
 
 # Run integration tests
