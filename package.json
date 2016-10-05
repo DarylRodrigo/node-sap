@@ -2,6 +2,11 @@
   "name": "node-sap",
   "version": "0.0.1",
   "description": "SAP Anywhere API integration tool",
+  "author": "Daryl Rodrigo <daryl@pi-top.com>",
+  "contributors": [{
+    "name": "Mic Cassano",
+    "email": "mic.cassano@gmail.com"
+  }],
   "main": "index.js",
   "scripts": {
     "test": "mocha",
@@ -15,7 +20,6 @@
   "keywords": [
     "SAP"
   ],
-  "author": "Daryl Rodrigo <daryl@pi-top.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/DarylRodrigo/node-sap/issues"
