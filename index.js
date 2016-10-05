@@ -1,74 +1,82 @@
 'use strict';
 
-var Request = require('request');
+var request = require('request');
+require('es6-promise').polyfill();
 
-function sap(options) {
+function Sap(credentials) {
+  this.expires_in = 43199;
+  this.scope      = "BusinessData_R BusinessData_RW auth:tenant:766";
+  this.token_type = "bearer";
 
-  this.expires_in     = 43199;
-  this.scope          = "BusinessData_R BusinessData_RW auth:tenant:766";
-  this.token_type     = "bearer";
+  this.httpUri    = "https://api-eu.sapanywhere.com:443";
+  this.version    = "v1";
 
-  this.httpUri        = "https://api-eu.sapanywhere.com:443";
-  this.version        = "v1"
-
-  if (!options) {
-    console.error("SAP - Please provide options.")
-  } else if (!options.client_id || !options.client_secret || !options.refresh_token) {
-    console.error("SAP - insufficient credentials.")
+  if (!credentials) {
+    console.error(new Error("SAP - Please provide credentials."));
+  } else if (!credentials.client_id || !credentials.client_secret || !credentials.refresh_token) {
+    console.error(new Error("SAP - Insufficient credentials."));
   } else {
-    this.client_id = options.client_id;
-    this.client_secret = options.client_secret;
-    this.refresh_token = options.refresh_token;
-
-    this.getAccessToken();
+    this.credentials = credentials;
   }
 }
 
-sap.prototype.execute = function (method, path, params, callback) {
-  var finalParams = params || {};
+Sap.prototype.execute = function (method, path, params, callback) {
+  var that = this;
 
-  Request({
-    uri : this.httpUri+'/'+this.version+'/' + path + '?access_token=' + this.access_token,
-    method: method,
-    headers: [
-      {
-        name: 'content-type',
-        value: 'application/x-www-form-urlencoded'
-      }
-    ],
-    body : encodeURIComponent(JSON.stringify(finalParams))
-  }, function (error, response, body) {
-    callback(error, response, body);
+  var tokenPromise = new Promise(function (resolve, reject) {
+    var accessToken;
+
+    if (that.access_token) {
+      resolve();
+    } else {
+      getAccessToken(that.credentials, function (err, data) {
+        if (err) {
+          reject(err);
+        } else {
+          that.access_token = data.access_token;
+          resolve();
+        }
+      })
+    }
+  });
+
+  tokenPromise.then(function (data) {
+    var options = {
+      method: method,
+      url: that.httpUri +'/'+ that.version +'/'+ path +'?access_token='+ that.access_token,
+      body: encodeURIComponent(JSON.stringify(params))
+    };
+
+    request(options, function (err, res, body) {
+      callback(err, res, body);
+    });
+
+  }, function (err) {
+    callback(err);
   });
 };
 
-sap.prototype.getCustomers = function (cb) {
-  this.execute("GET", "Customers", {}, function(error, response, body) {
-    cb(error, response, body);
+function getAccessToken(credentials, callback) {
+  var options = {
+      method: 'POST',
+      url: 'https://my-eu.sapanywhere.com:443/oauth2/token?client_id='+ credentials.client_id
+            +'&client_secret='+ credentials.client_secret
+            +'&grant_type=refresh_token&refresh_token='+ credentials.refresh_token,
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded'
+      }
+    };
+
+  request(options, function (err, res, body) {
+    var error = err;
+    var data  = JSON.parse(body);
+
+    if (!error && data.error) error = new Error(data.error_description);
+
+    callback(error, data);
   });
 }
 
-sap.prototype.getAccessToken = function () {
-
-  Request({
-    uri : "https://my-eu.sapanywhere.com:443/oauth2/token?client_id=" + this.client_id + "&client_secret=" + this.client_secret + "&grant_type=refresh_token&refresh_token=" +this.refresh_token,
-    method: "POST",
-    headers: [
-      {
-        name: 'content-type',
-        value: 'application/x-www-form-urlencoded'
-      }
-    ]
-  }, (error, response, body) => {
-    var data = JSON.parse(body);
-    if (error) {
-      console.error("Incorrect authentication details")
-    } else {
-      this.access_token = data.access_token;
-    }
-  });
-};
-
-module.exports = function (options) {
-  return new sap(options);
+module.exports = function (credentials) {
+  return new Sap(credentials);
 };
