@@ -1,4 +1,4 @@
-# node-sap [![CircleCI](https://circleci.com/gh/DarylRodrigo/sap/tree/master.svg?style=svg)](https://circleci.com/gh/DarylRodrigo/sap/tree/master)
+# node-sap [![CircleCI](https://circleci.com/gh/DarylRodrigo/node-sap/tree/master.svg?style=svg)](https://circleci.com/gh/DarylRodrigo/node-sap/tree/master)
 
 A small wrapper library to easily use SAP Anywhere's API
 
