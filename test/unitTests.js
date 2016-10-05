@@ -21,7 +21,7 @@ describe('Unit tests', function () {
 
   after(function () {
     nock.cleanAll();
-  })
+  });
 
   describe('initialization', function () {
     it('sets the credentials', function () {
@@ -53,18 +53,20 @@ describe('Unit tests', function () {
 
     before(function () {
       mockAuth = nock('https://my-eu.sapanywhere.com:443/oauth2', {
-          reqheaders: { 'content-type': 'application/x-www-form-urlencoded' }
-        })
-        .persist()
-        .post('/token?client_id=' + credentials.client_id + '&client_secret=' + credentials.client_secret + '&grant_type=refresh_token&refresh_token=' + credentials.refresh_token)
-        .reply(200, {
-          'access_token': 'mock_token'
-        });
+        reqheaders: { 'content-type': 'application/x-www-form-urlencoded' }
+      })
+      .persist()
+      .post('/token?client_id=' + credentials.client_id
+        + '&client_secret=' + credentials.client_secret
+        + '&grant_type=refresh_token&refresh_token=' + credentials.refresh_token)
+      .reply(200, {
+        access_token: 'mock_token',
+      });
     });
 
     beforeEach(function () {
       mockAPI = nock(sap.httpUri)
-        .get('/'+ sap.version +'/'+ path +'?access_token='+ mockToken)
+        .get('/' + sap.version + '/' + path + '?access_token=' + mockToken)
         .reply(statusCode, expectedResult);
     });
 
@@ -85,16 +87,21 @@ describe('Unit tests', function () {
 
     describe('when unable to get an access token', function () {
       it('passes the error to the callback', function (done) {
-        initModule({ client_id: 'incorrect', client_secret: 'incorrect', refresh_token: 'incorrect'});
+        initModule({  client_id: 'incorrect',
+                      client_secret: 'incorrect',
+                      refresh_token: 'incorrect',
+                  });
 
         var badAuth = nock('https://my-eu.sapanywhere.com:443/oauth2', {
-            reqheaders: { 'content-type': 'application/x-www-form-urlencoded' }
-          })
-          .post('/token?client_id=' + 'incorrect' + '&client_secret=' + 'incorrect' + '&grant_type=refresh_token&refresh_token=' + 'incorrect')
-          .reply(200, {
-            'error': 'mock_error',
-            'error_description': 'Mock error description'
-          });
+          reqheaders: { 'content-type': 'application/x-www-form-urlencoded' }
+        })
+        .post('/token?client_id=incorrect'
+          + '&client_secret=incorrect'
+          + '&grant_type=refresh_token&refresh_token=incorrect')
+        .reply(200, {
+          error: 'mock_error',
+          error_description: 'Mock error description',
+        });
 
         sap.execute('GET', path, null, function (err, res, body) {
           expect(err.message).to.eql('Mock error description');
@@ -108,5 +115,5 @@ describe('Unit tests', function () {
   initModule = function (credentials) {
     sap = undefined;
     sap = require('../index')(credentials);
-  }
+  };
 });

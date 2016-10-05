@@ -3,10 +3,12 @@
   "version": "0.0.1",
   "description": "SAP Anywhere API integration tool",
   "author": "Daryl Rodrigo <daryl@pi-top.com>",
-  "contributors": [{
-    "name": "Mic Cassano",
-    "email": "mic.cassano@gmail.com"
-  }],
+  "contributors": [
+    {
+      "name": "Mic Cassano",
+      "email": "mic.cassano@gmail.com"
+    }
+  ],
   "main": "index.js",
   "scripts": {
     "test": "mocha",
@@ -31,6 +33,11 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "coveralls": "^2.11.14",
+    "eslint": "^3.7.1",
+    "eslint-config-airbnb": "^12.0.0",
+    "eslint-plugin-import": "^2.0.0",
+    "eslint-plugin-jsx-a11y": "^2.2.2",
+    "eslint-plugin-react": "^6.3.0",
     "istanbul": "^0.4.5",
     "mocha": "^3.0.2",
     "nock": "^8.0.0",

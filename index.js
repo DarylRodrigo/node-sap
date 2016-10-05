@@ -5,16 +5,16 @@ require('es6-promise').polyfill();
 
 function Sap(credentials) {
   this.expires_in = 43199;
-  this.scope      = "BusinessData_R BusinessData_RW auth:tenant:766";
-  this.token_type = "bearer";
+  this.scope      = 'BusinessData_R BusinessData_RW auth:tenant:766';
+  this.token_type = 'bearer';
 
-  this.httpUri    = "https://api-eu.sapanywhere.com:443";
-  this.version    = "v1";
+  this.httpUri    = 'https://api-eu.sapanywhere.com:443';
+  this.version    = 'v1';
 
   if (!credentials) {
-    console.error(new Error("SAP - Please provide credentials."));
+    console.error(new Error('SAP - Please provide credentials.'));
   } else if (!credentials.client_id || !credentials.client_secret || !credentials.refresh_token) {
-    console.error(new Error("SAP - Insufficient credentials."));
+    console.error(new Error('SAP - Insufficient credentials.'));
   } else {
     this.credentials = credentials;
   }
@@ -24,8 +24,6 @@ Sap.prototype.execute = function (method, path, params, callback) {
   var that = this;
 
   var tokenPromise = new Promise(function (resolve, reject) {
-    var accessToken;
-
     if (that.access_token) {
       resolve();
     } else {
@@ -36,21 +34,20 @@ Sap.prototype.execute = function (method, path, params, callback) {
           that.access_token = data.access_token;
           resolve();
         }
-      })
+      });
     }
   });
 
-  tokenPromise.then(function (data) {
+  tokenPromise.then(function () {
     var options = {
       method: method,
-      url: that.httpUri +'/'+ that.version +'/'+ path +'?access_token='+ that.access_token,
-      body: encodeURIComponent(JSON.stringify(params))
+      url: that.httpUri + '/' + that.version + '/' + path + '?access_token=' + that.access_token,
+      body: encodeURIComponent(JSON.stringify(params)),
     };
 
     request(options, function (err, res, body) {
       callback(err, res, body);
     });
-
   }, function (err) {
     callback(err);
   });
@@ -58,14 +55,14 @@ Sap.prototype.execute = function (method, path, params, callback) {
 
 function getAccessToken(credentials, callback) {
   var options = {
-      method: 'POST',
-      url: 'https://my-eu.sapanywhere.com:443/oauth2/token?client_id='+ credentials.client_id
-            +'&client_secret='+ credentials.client_secret
-            +'&grant_type=refresh_token&refresh_token='+ credentials.refresh_token,
-      headers: {
-        'content-type': 'application/x-www-form-urlencoded'
-      }
-    };
+    method: 'POST',
+    url: 'https://my-eu.sapanywhere.com:443/oauth2/token?client_id=' + credentials.client_id
+          + '&client_secret=' + credentials.client_secret
+          + '&grant_type=refresh_token&refresh_token=' + credentials.refresh_token,
+    headers: {
+      'content-type': 'application/x-www-form-urlencoded',
+    },
+  };
 
   request(options, function (err, res, body) {
     var error = err;
