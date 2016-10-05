@@ -1,6 +1,6 @@
 # node-sap [![CircleCI](https://circleci.com/gh/DarylRodrigo/sap/tree/master.svg?style=svg)](https://circleci.com/gh/DarylRodrigo/sap/tree/master)
 
-A small wrapper library to easily use SAP's API
+A small wrapper library to easily use SAP Anywhere's API
 
 ## Installation
 
