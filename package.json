@@ -1,7 +1,7 @@
 {
   "name": "node-sap",
   "version": "0.0.1",
-  "description": "SAP api integration tool",
+  "description": "SAP Anywhere API integration tool",
   "main": "index.js",
   "scripts": {
     "test": "mocha",
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/DarylRodrigo/sap.git"
+    "url": "git+https://github.com/DarylRodrigo/node-sap.git"
   },
   "keywords": [
     "SAP"
@@ -18,12 +18,12 @@
   "author": "Daryl Rodrigo <daryl@pi-top.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/DarylRodrigo/sap/issues"
+    "url": "https://github.com/DarylRodrigo/node-sap/issues"
   },
   "engines": {
     "node": ">=4.2.4"
   },
-  "homepage": "https://github.com/DarylRodrigo/sap#readme",
+  "homepage": "https://github.com/DarylRodrigo/node-sap#readme",
   "devDependencies": {
     "chai": "^3.5.0",
     "coveralls": "^2.11.14",
