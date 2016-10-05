@@ -1,5 +1,5 @@
 {
-  "name": "sap",
+  "name": "node-sap",
   "version": "0.0.1",
   "description": "SAP api integration tool",
   "main": "index.js",
@@ -33,6 +33,7 @@
     "sinon": "^1.17.6"
   },
   "dependencies": {
-    "es6-promise": "^4.0.5"
+    "es6-promise": "^4.0.5",
+    "request": "^2.75.0"
   }
 }
