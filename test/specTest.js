@@ -5,7 +5,7 @@ var credentials = require('../auth.json');
 var sinon = require('sinon');
 var expect = require('chai').expect;
 
-describe('SAP module', function () {
+describe('Unit tests', function () {
   var sap,
     consoleError,
     initModule;

@@ -3,13 +3,13 @@
 var credentials = require('../auth.json');
 var expect = require('chai').expect;
 
-describe('API integration', function () {
+describe('Integration tests', function () {
   this.timeout(5000);
 
   var sap = require('../index')(credentials);
 
   describe('execute', function () {
-    it('sends custom HTTP requests', function (done) {
+    xit('sends custom HTTP requests', function (done) {
       sap.execute('GET', 'Currencies', null, function (err, res, body) {
         var data;
         if (body) data = JSON.parse(body);
