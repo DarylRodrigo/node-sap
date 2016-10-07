@@ -46,7 +46,13 @@ Sap.prototype.execute = function (method, path, params, callback) {
     };
 
     request(options, function (err, res, body) {
-      callback(err, res, body);
+      if (err) {
+        callback(err);
+      } else if (!err && res.statusCode !== 200) {
+        callback(new Error('Received a ' + res.statusCode + ' error'));
+      } else {
+        callback(null, JSON.parse(body));
+      }
     });
   }, function (err) {
     callback(err);

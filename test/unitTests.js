@@ -78,9 +78,8 @@ describe('Unit tests', function () {
     });
 
     it('passes the response to the callback', function (done) {
-      sap.execute('GET', path, null, function (err, res, body) {
-        expect(res.statusCode).to.equal(statusCode);
-        expect(JSON.parse(body)).to.eql(expectedResult);
+      sap.execute('GET', path, null, function (err, data) {
+        expect(data).to.eql(expectedResult);
         done();
       });
     });
