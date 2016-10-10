@@ -55,7 +55,7 @@ The `execute()` method passed three arguments to the handler callback instead of
 
 ## Tests
 
-Tests use the [mocha](https://github.com/mochajs/mocha) framework, [chai](https://github.com/chaijs/chai) for BDD-style assertions, [nock](https://github.com/node-nock/nock) for mocking HTTP requests, and [sinon](https://github.com/sinonjs/sinon) for mocking.
+Tests use the [mocha](https://github.com/mochajs/mocha) framework, [chai](https://github.com/chaijs/chai) for BDD-style assertions, [nock](https://github.com/node-nock/nock) for mocking HTTP requests, and [sinon](https://github.com/sinonjs/sinon) for mocks, stubs and spies.
 
 NOTE: integration testing will only work once you have supplied API credentials as described in **Installation**. Once you have done this, you can switch on integration tests by removing the `x` at the start of the tests (see comment in `test/integrationTests.js`).
 
