@@ -8,7 +8,7 @@ A small wrapper library to easily use SAP Anywhere's API
 $ npm install node-sap
 ```
 
-You must add authentication credentials in order to use the module and run tests. To do so, modify the `auth.json` file in the root folder with your SAP API credentials as follows:
+You must add authentication credentials in order to use the module and run tests. To do so, modify the `auth.json` file in the root folder with your SAP API credentials:
 ```json
 // auth.json
 {
@@ -22,7 +22,36 @@ You must add authentication credentials in order to use the module and run tests
 
 Include the following line at the top of your file, where `credentials` points to your API credentials as described in **Installation**:
 
-`var sap = require('sap')(credentials);`
+```
+var credentials = require('./auth.json`);
+var sap = require('node-sap')(credentials);
+```
+
+The module exposes a single public `execute` method that allows you to send requests to the SAP Anywhere API. The function will automatically fetch an access token based on your credentials as described in **Installation**.
+
+The `execute` method takes four parameters:
+* the request method (as a `String`)
+* the API path (as a `String`)
+* request body parameters (as an `Object`)
+* a handler callback
+
+The `execute` method passes two arguments to the handler callback:
+* An Error object
+* An object with the response results
+
+For example, to fetch a list of all customers:
+```js
+sap.execute('GET', '/Customers', {}, function(err, data) {
+  // Asynchronously handle error or success
+}
+```
+
+#### Before `v1.0.0`
+
+The `execute()` method passed three arguments to the handler callback instead of two:
+* An Error object
+* The HTTP response (as `JSON`)
+* The HTTP body (as `JSON`)
 
 ## Tests
 
