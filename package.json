@@ -15,6 +15,16 @@
     "unit-tests": "mocha test/specTest.js",
     "integration-tests": "mocha test/integrationTest.js"
   },
+  "eslintConfig": {
+    "extends": "eslint:recommended",
+    "env": {
+      "node": true,
+      "mocha": true
+    },
+    "parserOptions": {
+      "source": "modules"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/DarylRodrigo/node-sap.git"
