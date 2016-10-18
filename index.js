@@ -20,7 +20,7 @@ function Sap(credentials) {
   }
 }
 
-Sap.prototype.execute = function (method, path, params, callback) {
+Sap.prototype.execute = function (method, path, body, callback) {
   var that = this;
 
   var tokenPromise = new Promise(function (resolve, reject) {
@@ -42,7 +42,10 @@ Sap.prototype.execute = function (method, path, params, callback) {
     var options = {
       method: method,
       url: that.httpUri + '/' + that.version + '/' + path + '?access_token=' + that.access_token,
-      body: encodeURIComponent(JSON.stringify(params)),
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify(body),
     };
 
     request(options, function (err, res, body) {
@@ -54,7 +57,7 @@ Sap.prototype.execute = function (method, path, params, callback) {
         callback(null, JSON.parse(body));
       }
     });
-  }, function (err) {
+  }, function (err) { // TODO: refactor to catch block
     callback(err);
   });
 };
@@ -71,8 +74,9 @@ function getAccessToken(credentials, callback) {
   };
 
   request(options, function (err, res, body) {
-    var error = err;
-    var data  = JSON.parse(body);
+    var error = err,
+      data;
+    if (body) data = JSON.parse(body);
 
     if (!error && data.error) error = new Error(data.error_description);
 
