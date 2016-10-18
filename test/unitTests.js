@@ -49,7 +49,8 @@ describe('Unit tests', function () {
       statusCode = 200,
       expectedResult = { 'id': '1' },
       mockAuth,
-      mockAPI;
+      mockAPI,
+      mockPostAPI;
 
     before(function () {
       mockAuth = nock('https://my-eu.sapanywhere.com:443/oauth2', {
@@ -68,6 +69,10 @@ describe('Unit tests', function () {
       mockAPI = nock(sap.httpUri)
         .get('/' + sap.version + '/' + path + '?access_token=' + mockToken)
         .reply(statusCode, expectedResult);
+
+      mockPostAPI = nock(sap.httpUri)
+        .post('/' + sap.version + '/' + path + '?access_token=' + mockToken)
+        .reply(200, 1);
     });
 
     it('sets the access token', function (done) {
@@ -83,6 +88,20 @@ describe('Unit tests', function () {
         done();
       });
     });
+
+    it('sends a custom POST request', function (done) {
+      var customer = {
+        "customerType": "INDIVIDUAL_CUSTOMER",
+        "firstName": "Rick",
+        "lastName": "Morty",
+        "stage": "CUSTOMER"
+      };
+
+      sap.execute('POST', path, customer, function (err, data) {
+        expect(data).to.eql(1);
+        done();
+      });
+    })
 
     describe('when unable to get an access token', function () {
       it('passes the error to the callback', function (done) {
