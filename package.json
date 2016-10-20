@@ -1,12 +1,16 @@
 {
   "name": "node-sap",
-  "version": "1.0.2",
+  "version": "2.0.0",
   "description": "SAP Anywhere API integration tool",
   "author": "Daryl Rodrigo <daryl@pi-top.com>",
   "contributors": [
     {
       "name": "Mic Cassano",
       "email": "mic.cassano@gmail.com"
+    },
+    {
+      "name": "Angus Whitehead",
+      "email": "angusjfw@gmail.com"
     }
   ],
   "main": "index.js",

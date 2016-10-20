@@ -20,8 +20,9 @@ function Sap(credentials) {
   }
 }
 
-Sap.prototype.execute = function (method, path, body, callback) {
+Sap.prototype.execute = function (args, callback) {
   var that = this;
+  var requestParams = formatParams(args.params);
 
   var tokenPromise = new Promise(function (resolve, reject) {
     if (that.access_token) {
@@ -40,19 +41,19 @@ Sap.prototype.execute = function (method, path, body, callback) {
 
   tokenPromise.then(function () {
     var options = {
-      method: method,
-      url: that.httpUri + '/' + that.version + '/' + path + '?access_token=' + that.access_token,
+      method: args.method,
+      url: that.httpUri + '/' + that.version + '/' + args.path + '?' + requestParams + 'access_token=' + that.access_token,
       headers: {
         'content-type': 'application/json',
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(args.body),
     };
 
     request(options, function (err, res, body) {
       if (err) {
         callback(err);
       } else if (!err && res.statusCode !== 200) {
-        callback(new Error('Received a ' + res.statusCode + ' error'));
+        callback(new Error('Received a ' + res.statusCode + ' error.'));
       } else {
         callback(null, JSON.parse(body));
       }
@@ -82,6 +83,16 @@ function getAccessToken(credentials, callback) {
 
     callback(error, data);
   });
+}
+
+function formatParams(params) {
+  var requestParams = '';
+  for (var key in params) {
+    if (params.hasOwnProperty(key)) {
+      requestParams += key + '=' + params[key] + '&';
+    }
+  }
+  return requestParams;
 }
 
 module.exports = function (credentials) {
