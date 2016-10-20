@@ -29,11 +29,12 @@ var sap = require('node-sap')(credentials);
 
 The module exposes a single public `execute` method that allows you to send requests to the SAP Anywhere API. The function will automatically fetch an access token based on your credentials as described in **Installation**.
 
-The `execute` method takes four parameters:
-* the request method (as a `String`)
-* the API path (as a `String`)
-* request body parameters (as an `Object`)
-* a handler callback
+The `execute` method takes two parameters, an options object and a callback.
+The options object can contain the following properties:
+* the request method (as a `String`) (required)
+* the API path (as a `String`) (required)
+* request parameters (as an `Object`)
+* request body (as an `Object`)
 
 The `execute` method passes two arguments to the handler callback:
 * An Error object
@@ -52,6 +53,14 @@ The `execute()` method passed three arguments to the handler callback instead of
 * An Error object
 * The HTTP response (as `JSON`)
 * The HTTP body (as `JSON`)
+
+#### Before `v2.0.0`
+
+The `execute` method took four parameters instead of two:
+* the request method (as a `String`)
+* the API path (as a `String`)
+* request body parameters (as an `Object`)
+* a handler callback
 
 ## Tests
 
