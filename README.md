@@ -40,9 +40,18 @@ The `execute` method passes two arguments to the handler callback:
 * An Error object
 * An object with the response results
 
-For example, to fetch a list of all customers:
+For example, to fetch a list of all products and expand their skus:
 ```js
-sap.execute('GET', '/Customers', {}, function(err, data) {
+var options = {
+  method: 'GET',
+  path: '/Products',
+  params: {
+    expand: 'skus'
+  },
+  body: {}
+};
+
+sap.execute(options, function(err, data) {
   // Asynchronously handle error or success
 }
 ```
