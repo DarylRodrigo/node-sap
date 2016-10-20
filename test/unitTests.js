@@ -14,8 +14,7 @@ describe('Unit tests', function () {
     initModule(credentials);
     consoleError = sinon.stub(console, 'error');
   });
-
-  afterEach(function () {
+afterEach(function () {
     consoleError.restore();
   });
 
@@ -44,12 +43,14 @@ describe('Unit tests', function () {
   });
 
   describe('execute()', function () {
-    var path = 'Customers',
+    var options,
+      path = 'Customers',
       mockToken = 'mock_token',
       statusCode = 200,
       expectedResult = { 'id': '1' },
       mockAuth,
       mockAPI,
+      mockParamsAPI,
       mockPostAPI;
 
     before(function () {
@@ -70,20 +71,39 @@ describe('Unit tests', function () {
         .get('/' + sap.version + '/' + path + '?access_token=' + mockToken)
         .reply(statusCode, expectedResult);
 
+      mockParamsAPI = nock(sap.httpUri)
+        .get('/' + sap.version + '/' + path + '?pasta=true&access_token=' + mockToken)
+        .reply(statusCode, expectedResult);
+
       mockPostAPI = nock(sap.httpUri)
         .post('/' + sap.version + '/' + path + '?access_token=' + mockToken)
         .reply(200, 1);
+
+      options = {
+        method: 'GET',
+        path: path,
+        params: {}
+      };
     });
 
     it('sets the access token', function (done) {
-      sap.execute('GET', path, null, function (err, res, body) {
+      sap.execute(options, function (err, res, body) {
         expect(sap.access_token).to.equal(mockToken);
         done();
       });
     });
 
     it('passes the response to the callback', function (done) {
-      sap.execute('GET', path, null, function (err, data) {
+      sap.execute(options, function (err, data) {
+        expect(data).to.eql(expectedResult);
+        done();
+      });
+    });
+
+    it('sends a request with params', function (done) {
+      options.params = { pasta: true };
+
+      sap.execute(options, function (err, data) {
         expect(data).to.eql(expectedResult);
         done();
       });
@@ -97,7 +117,9 @@ describe('Unit tests', function () {
         "stage": "CUSTOMER"
       };
 
-      sap.execute('POST', path, customer, function (err, data) {
+      options.method = 'POST';
+
+      sap.execute(options, function (err, data) {
         expect(data).to.eql(1);
         done();
       });
@@ -121,7 +143,7 @@ describe('Unit tests', function () {
           error_description: 'Mock error description',
         });
 
-        sap.execute('GET', path, null, function (err, res, body) {
+        sap.execute(options, function (err, res, body) {
           expect(err.message).to.eql('Mock error description');
           expect(badAuth.isDone()).to.be.true;
           done();
