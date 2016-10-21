@@ -1,6 +1,6 @@
 var expect = require('chai').expect;
 var Promise = require('es6-promise').Promise;
-var credentials = require('../../auth.json');
+var credentials = require('../support/testCredentials');
 var sap = require('../../index')(credentials);
 
 describe('End-to-end tests', function () {

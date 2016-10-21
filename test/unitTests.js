@@ -1,7 +1,7 @@
 'use strict';
 
 var nock = require('nock');
-var credentials = require('../auth.json');
+var credentials = require('../testCredentials');
 var sinon = require('sinon');
 var expect = require('chai').expect;
 

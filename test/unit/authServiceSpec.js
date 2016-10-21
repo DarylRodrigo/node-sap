@@ -1,6 +1,6 @@
 var expect = require('chai').expect;
 var nock = require('nock');
-var credentials = require('../../auth.json');
+var credentials = require('../support/testCredentials');
 var AuthService = require('../../services/authService');
 var Promise = require('es6-promise').Promise;
 
