@@ -2,29 +2,29 @@ var request = require('request');
 var Promise = require('es6-promise').Promise;
 
 function AuthService(credentials) {
+  var that = this;
+
   if (!credentials) {
     throw new Error('SAP - Please provide credentials.');
   } else if (!credentials.client_id || !credentials.client_secret || !credentials.refresh_token) {
     throw new Error('SAP - Insufficient credentials.');
   } else {
-    this.client_id      = credentials.client_id;
-    this.client_secret  = credentials.client_secret;
-    this.refresh_token  = credentials.refresh_token;
+    this.credentials = credentials;
   }
 
   this.tokenPromise = new Promise(function(resolve, reject) {
-    getAccessToken()
+    getAccessToken(that.credentials)
       .then(resolve)
       .catch(reject);
   });
 }
 
-function getAccessToken() {
+function getAccessToken(credentials) {
   var options = {
     method: 'POST',
-    url: 'https://my-eu.sapanywhere.com:443/oauth2/token?client_id=' + this.client_id
-          + '&client_secret=' + this.client_secret
-          + '&grant_type=refresh_token&refresh_token=' + this.refresh_token,
+    url: 'https://my-eu.sapanywhere.com:443/oauth2/token?client_id=' + credentials.client_id
+          + '&client_secret=' + credentials.client_secret
+          + '&grant_type=refresh_token&refresh_token=' + credentials.refresh_token,
     headers: {
       'content-type': 'application/x-www-form-urlencoded',
     },

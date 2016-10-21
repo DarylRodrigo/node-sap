@@ -2,27 +2,58 @@ var expect = require('chai').expect;
 var nock = require('nock');
 var credentials = require('../../auth.json');
 var AuthService = require('../../services/authService');
+var Promise = require('es6-promise').Promise;
 
 describe('AuthService', function () {
   var mockToken = 'mock_token';
+  this.timeout(6000);
 
-  nock('https://my-eu.sapanywhere.com:443/oauth2', {
-    reqheaders: { 'content-type': 'application/x-www-form-urlencoded' }
-  })
-  .post('/token?client_id=' + credentials.client_id
-    + '&client_secret=' + credentials.client_secret
-    + '&grant_type=refresh_token&refresh_token=' + credentials.refresh_token)
-  .reply(200, {
-    access_token: mockToken
+  beforeEach(function() {
+    nock('https://my-eu.sapanywhere.com:443/oauth2', {
+      reqheaders: { 'content-type': 'application/x-www-form-urlencoded' }
+    })
+    .post('/token?client_id=' + credentials.client_id
+      + '&client_secret=' + credentials.client_secret
+      + '&grant_type=refresh_token&refresh_token=' + credentials.refresh_token)
+    .reply(200, {
+      access_token: mockToken
+    });
   });
 
   describe('initialization', function () {
     it('sets credentials', function () {
       var authService = new AuthService(credentials);
 
-      expect(authService.client_id).to.exist;
-      expect(authService.client_secret).to.exist;
-      expect(authService.refresh_token).to.exist;
+      expect(authService.credentials).to.exist;
+    });
+
+    it('creates tokenPromise which resolves with an access token', function (done) {
+      var authService = new AuthService(credentials);
+
+      authService.tokenPromise
+        .then(function(accessToken) {
+          expect(accessToken).to.equal(mockToken);
+          done();
+        })
+        .catch(done);
+    });
+
+    describe('when accessing tokenPromise multiple times', function() {
+      it('does not make multiple accessToken requests', function(done) {
+        //nock will throw an error if the request is made multiple times
+        var authService = new AuthService(credentials);
+
+        Promise.all([
+          authService.tokenPromise,
+          authService.tokenPromise,
+        ])
+        .then(function(results) {
+          expect(results[0]).to.equal(mockToken);
+          expect(results[1]).to.equal(mockToken);
+          done();
+        })
+        .catch(done);
+      });
     });
 
     describe('when passed no credentials', function () {
