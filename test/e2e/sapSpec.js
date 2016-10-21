@@ -1,3 +1,5 @@
+'use strict';
+
 var expect = require('chai').expect;
 var Promise = require('es6-promise').Promise;
 var credentials = require('../support/testCredentials');
