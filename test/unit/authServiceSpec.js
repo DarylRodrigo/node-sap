@@ -40,7 +40,7 @@ describe('AuthService', function () {
 
     describe('when accessing tokenPromise multiple times', function() {
       it('does not make multiple accessToken requests', function(done) {
-        //nock will throw an error if the request is made multiple times
+        // nock will throw an error if the request is made multiple times
         var authService = new AuthService(credentials);
 
         Promise.all([
