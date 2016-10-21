@@ -1,7 +1,7 @@
 'use strict';
 
 var request = require('request');
-require('es6-promise').polyfill();
+var Promise = require('es6-promise').Promise;
 
 function Sap(credentials) {
   this.expires_in = 43199;
