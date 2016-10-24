@@ -7,8 +7,8 @@ var credentials = require('../support/testCredentials');
 
 describe('Sap', function () {
   describe('execute', function () {
-    var sapHelper = new Sap(credentials),
-      options,
+    var options,
+      sapHelper = new Sap(credentials),
       mockToken = 'mock_token',
       expectedResult = { 'id': '1' };
 
@@ -25,12 +25,12 @@ describe('Sap', function () {
     beforeEach(function () {
       options = {
         method: 'GET',
-        path: 'Customers',
-        params: {}
+        path: 'Customers'
       };
     });
 
-    it('passes the response of a custom request to a callback', function (done) {
+    it('sends a custom GET request', function (done) {
+
       nock(sapHelper.httpUri)
         .get('/' + sapHelper.version + '/' + options.path
           + '?pasta=true&access_token=' + mockToken)
@@ -40,7 +40,8 @@ describe('Sap', function () {
         pasta: true
       };
 
-      sapHelper.execute(options, function (err, data) {
+      sapHelper.execute(options, function (err, data, status) {
+        expect(status).to.equal(200);
         expect(data).to.eql(expectedResult);
         done();
       });
@@ -57,32 +58,32 @@ describe('Sap', function () {
       nock(sapHelper.httpUri)
         .post('/' + sapHelper.version + '/' + options.path
           + '?access_token=' + mockToken)
-        .reply(200, 1);
+        .reply(201, 1);
 
       options.method = 'POST';
       options.body = customer;
 
-      sapHelper.execute(options, function (err, data) {
+      sapHelper.execute(options, function (err, data, status) {
+        expect(status).to.equal(201);
         expect(data).to.eql(1);
         done();
       });
     });
 
-    describe('when it receives a status code other than 200', function () {
+    describe('when it receives an error status code', function () {
       it('passes an error to the callback', function (done) {
         options.path = 'Invalid';
-        var mockStatusCode = 404,
-          mockErrorMessage = 'Mock 404 error message';
+        var mockErrorMessage = 'Mock 404 error message';
 
         var badRequest = nock(sapHelper.httpUri)
           .get('/' + sapHelper.version + '/' + options.path
             + '?access_token=' + mockToken)
-          .reply(mockStatusCode, {
+          .reply(404, {
             message: mockErrorMessage
           });
 
         sapHelper.execute(options, function (err) {
-          expect(err.message).to.equal(mockStatusCode + ' error: '
+          expect(err.message).to.equal(404 + ' error: '
             + mockErrorMessage);
           expect(badRequest.isDone()).to.be.true;
           done();
@@ -112,7 +113,7 @@ describe('Sap', function () {
           expect(badAuthRequest.isDone()).to.be.true;
           done();
         });
-      })
+      });
     });
   });
 });
