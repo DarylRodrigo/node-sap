@@ -4,8 +4,6 @@ var request = require('request');
 var Promise = require('es6-promise').Promise;
 
 function AuthService(credentials) {
-  var that = this;
-
   if (!credentials) {
     throw new Error('SAP - Please provide credentials.');
   } else if (!credentials.client_id || !credentials.client_secret || !credentials.refresh_token) {
@@ -14,8 +12,30 @@ function AuthService(credentials) {
     this.credentials = credentials;
   }
 
-  this.tokenPromise = new Promise(function(resolve, reject) {
-    getAccessToken(that.credentials)
+  this.scheduleTokenRenewal(0);
+}
+
+AuthService.prototype.scheduleTokenRenewal = function(delay) {
+  var that = this;
+
+  setTimeout(function() {
+    that.tokenPromise = tokenPromiseInit(that.credentials)
+
+    that.tokenPromise
+      .then(function (tokenData) {
+        that.tokenExpiry = Math.round((tokenData.expires_in * 1000) / 2);
+        that.scheduleTokenRenewal(that.tokenExpriy);
+      })
+      .catch(function (error) {
+        console.log('SAP - Error while authenticating: ' + JSON.stringify(error));
+        that.scheduleTokenRenewal(500);
+      });
+  }, delay);
+}
+
+function tokenPromiseInit(credentials) {
+  return new Promise(function(resolve, reject) {
+    getAccessToken(credentials)
       .then(resolve)
       .catch(reject);
   });
@@ -35,15 +55,14 @@ function getAccessToken(credentials) {
   return new Promise(function(resolve, reject) {
     request(options, function (err, res, body) {
       var data;
-
       if (body) { data = JSON.parse(body); }
 
       if (err) {
         reject(err);
-      } else if (!err && data.error) {
+      } else if (data.error) {
         reject(new Error(data.error_description));
       } else {
-        resolve(data.access_token);
+        resolve(data);
       }
     });
   });
