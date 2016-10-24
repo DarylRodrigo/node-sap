@@ -1,9 +1,9 @@
 'use strict';
 
 var nock = require('nock');
-var credentials = require('../testCredentials');
 var sinon = require('sinon');
 var expect = require('chai').expect;
+var credentials = require('../testCredentials');
 
 describe('Unit tests', function () {
   var sap,
@@ -14,7 +14,8 @@ describe('Unit tests', function () {
     initModule(credentials);
     consoleError = sinon.stub(console, 'error');
   });
-afterEach(function () {
+
+  afterEach(function () {
     consoleError.restore();
   });
 
