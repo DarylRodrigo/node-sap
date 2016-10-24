@@ -1,6 +1,6 @@
 {
   "name": "node-sap",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "SAP Anywhere API integration tool",
   "author": "Daryl Rodrigo <daryl@pi-top.com>",
   "contributors": [
@@ -15,9 +15,8 @@
   ],
   "main": "index.js",
   "scripts": {
-    "test": "mocha",
-    "unit-tests": "mocha test/specTest.js",
-    "integration-tests": "mocha test/integrationTest.js"
+    "test": "mocha test/unit/**/*Spec.js",
+    "e2e-tests": "mocha test/e2e/**/*Spec.js"
   },
   "eslintConfig": {
     "extends": "eslint:recommended",

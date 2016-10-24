@@ -2,88 +2,131 @@
 
 A small wrapper library to easily use SAP Anywhere's API
 
+* [Installation](#installation)
+* [Usage](#usage)
+* [Changelog](#changelog)
+* [Tests](#tests)
+
 ## Installation
 
 ```sh
 $ npm install node-sap
 ```
 
-You must add authentication credentials in order to use the module and run tests. To do so, modify the `auth.json` file in the root folder with your SAP API credentials:
-```json
+## Usage
+
+Include the following lines at the top of your file, where `credentials` points to a JSON file containing your SAP API credentials (see example below):
+
+```js
+// app.js
+var sapHelper = require('node-sap');
+var credentials = require('./auth');
+
+var sap = new sapHelper(credentials);
+
 // auth.json
 {
-  "client_id": "1234",
-  "client_secret": "1234",
-  "refresh_token": "1234"
+  "client_id": "123456789",
+  "client_secret": "123456789",
+  "refresh_token": "123456789"
 }
 ```
 
-## Usage
+#### `execute()`
 
-Include the following line at the top of your file, where `credentials` points to your API credentials as described in **Installation**:
-
-```
-var credentials = require('./auth.json`);
-var sap = require('node-sap')(credentials);
-```
-
-The module exposes a single public `execute` method that allows you to send requests to the SAP Anywhere API. The function will automatically fetch an access token based on your credentials as described in **Installation**.
+The module exposes a single public `execute` method that allows you to send requests to the SAP Anywhere API. The function will automatically fetch an access token based on your credentials.
 
 The `execute` method takes two parameters, an options object and a callback.
 The options object can contain the following properties:
-* the request method (as a `String`) (required)
-* the API path (as a `String`) (required)
-* request parameters (as an `Object`)
-* request body (as an `Object`)
 
-The `execute` method passes two arguments to the handler callback:
-* An Error object
-* An object with the response results
+* a request method `String` (**required**)
+* an API path `String` (**required**)
+* a request parameters `Object`
+* a request body `Object`
+
+The `execute` method passes four arguments to the handler callback:
+* an `Error` object
+* a `data` object with the response results
+* a `status` code integer
+* a `headers` object
+
+#### Example: `GET` request
 
 For example, to fetch a list of all products and expand their skus:
+
 ```js
 var options = {
   method: 'GET',
   path: '/Products',
   params: {
     expand: 'skus'
-  },
-  body: {}
+  }
 };
 
-sap.execute(options, function(err, data) {
+sap.execute(options, function(err, data, status, headers) {
   // Asynchronously handle error or success
 }
 ```
 
-#### Before `v1.0.0`
+#### Example: `POST` request
 
-The `execute()` method passed three arguments to the handler callback instead of two:
-* An Error object
-* The HTTP response (as `JSON`)
-* The HTTP body (as `JSON`)
+For example, to POST a new Customer:
 
-#### Before `v2.0.0`
+```js
+var options = {
+  method: 'POST',
+  path: '/Customers',
+  body: {
+    firstName: 'John',
+    lastName: 'Doe',
+    // ...
+  }
+};
 
-The `execute` method took four parameters instead of two:
+sap.execute(options, function(err, data, status, headers) {
+  // Asynchronously handle error or success
+}
+```
+
+## Changelog
+
+#### Versions `< 3.0.0`
+
+* The module was initialized when importing:
+```js
+// app.js
+var credentials = require('./auth');
+var sap = require('node-sap')(credentials);
+```
+* The execute function only returned `error` and `status` objects
+
+#### Versions `< 2.0.0`
+
+`execute()` took four parameters instead of two:
 * the request method (as a `String`)
 * the API path (as a `String`)
 * request body parameters (as an `Object`)
 * a handler callback
 
+#### Versions `< 1.0.0`
+
+`execute()` passed three arguments to the handler callback instead of two:
+* An Error object
+* The HTTP response (as `JSON`)
+* The HTTP body (as `JSON`)
+
 ## Tests
 
-Tests use the [mocha](https://github.com/mochajs/mocha) framework, [chai](https://github.com/chaijs/chai) for BDD-style assertions, [nock](https://github.com/node-nock/nock) for mocking HTTP requests, and [sinon](https://github.com/sinonjs/sinon) for mocks, stubs and spies.
-
-NOTE: integration testing will only work once you have supplied API credentials as described in **Installation**. Once you have done this, you can switch on integration tests by removing the `x` at the start of the tests (see comment in `test/integrationTests.js`).
+You must add authentication credentials in order to run end-to-end tests. To do so, modify the `testCredentials.json` file in the `tests/support` folder with your SAP API credentials.
 
 ```sh
-# Run all tests
+# Run unit tests
 $ `npm test`
 
-# Run unit tests only
-$ `npm run unit-tests`
-
-# Run integration tests only
-$ `npm run integration-tests`
+# Run e2e tests
+$ `npm run e2e-tests`
 ```
+
+**NOTE:** the end-to-end tests purposefully hit the live SAP API, but only execute `GET` requests. Additional tests that perform other CRUD operations on the live API are skipped by default. You can change this by removing `.skip` (see comment in `test/e2e/e2eSpec.js`).
+
+Tests use the [mocha](https://github.com/mochajs/mocha) framework, [chai](https://github.com/chaijs/chai) for BDD-style assertions, [nock](https://github.com/node-nock/nock) for mocking HTTP requests, and [sinon](https://github.com/sinonjs/sinon) for mocks, stubs and spies.
