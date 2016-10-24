@@ -16,59 +16,67 @@ describe('End-to-end tests', function () {
   };
 
   describe('execute', function () {
-    it('sends a custom GET request', function (done) {
-      sapHelper.execute(options, function (err, data, status, headers) {
-        if (err) return done(err);
+    describe('GET', function () {
+      it('sends a custom GET request', function (done) {
+        sapHelper.execute(options, function (err, data, status, headers) {
+          if (err) return done(err);
 
-        expect(status).to.equal(200);
-        expect(headers.server).to.equal('SAP');
-        expect(data.length).to.be.above(0);
-        expect(data[0].skus.length).to.be.above(0);
-        done();
-      });
-    });
-
-    it('can execute concurrently with single authentication', function (done) {
-      var executeAsPromised = function () {
-        return new Promise(function(resolve, reject) {
-          sapHelper.execute(options, function (err, data) {
-            if (err) { reject(err); }
-            else { resolve(data); }
-          });
+          expect(status).to.equal(200);
+          expect(headers.server).to.equal('SAP');
+          expect(data.length).to.be.above(0);
+          expect(data[0].skus.length).to.be.above(0);
+          done();
         });
-      };
+      });
 
-      Promise.all([
-        executeAsPromised(),
-        executeAsPromised()
-      ])
+      it('can execute concurrently with single authentication', function (done) {
+        var executeAsPromised = function () {
+          return new Promise(function(resolve, reject) {
+            sapHelper.execute(options, function (err, data) {
+              if (err) { reject(err); }
+              else { resolve(data); }
+            });
+          });
+        };
+
+        Promise.all([
+          executeAsPromised(),
+          executeAsPromised()
+        ])
         .then(function (results) {
           expect(results.length).to.equal(2);
           expect(results[0][0].skus).to.exist;
           done();
         })
         .catch(done);
+      });
     });
 
-    it.skip('sends a custom POST request', function (done) {
-      options = {
-        method: 'POST',
-        path: 'Customers',
-        body: {
-          "firstName": "Rick",
-          "lastName": "Morty",
-          "customerType": "INDIVIDUAL_CUSTOMER",
-          "stage": "CUSTOMER",
-          "status": "ACTIVE",
-          "marketingStatus": "UNKNOWN"
-        }
-      };
+    /* * * * * * * * * * * * * * * * * * * * * * * *
+    The following tests modify the live SAP API.
+    To run them, remove the `.skip` on the next line
+    * * * * * * * * * * * * * * * * * * * * * * * */
+    describe.skip('POST', function () {
+      it('sends a custom POST request', function (done) {
+        options = {
+          method: 'POST',
+          path: 'Customers',
+          body: {
+            firstName: "Rick",
+            lastName: "Morty",
+            customerType: "INDIVIDUAL_CUSTOMER",
+            stage: "CUSTOMER",
+            status: "ACTIVE",
+            marketingStatus: "UNKNOWN"
+          }
+        };
 
-      sapHelper.execute(options, function (err, data, status, headers) {
-        expect(status).to.equal(201);
-        expect(headers.server).to.equal('SAP');
-        expect(data).to.be.above(0);
-        done();
+        sapHelper.execute(options, function (err, data, status, headers) {
+          expect(status).to.equal(201);
+          expect(headers.server).to.equal('SAP');
+          expect(data).to.be.above(0);
+          done();
+        });
       });
     });
   });

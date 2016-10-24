@@ -1,6 +1,6 @@
 {
   "name": "node-sap",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "SAP Anywhere API integration tool",
   "author": "Daryl Rodrigo <daryl@pi-top.com>",
   "contributors": [
