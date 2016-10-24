@@ -8,7 +8,6 @@ var Promise = require('es6-promise').Promise;
 
 describe('AuthService', function () {
   var mockToken = 'mock_token';
-  this.timeout(6000);
 
   beforeEach(function() {
     nock('https://my-eu.sapanywhere.com:443/oauth2', {

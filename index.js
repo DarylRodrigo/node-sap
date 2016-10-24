@@ -7,8 +7,8 @@ function Sap(credentials) {
   var authService = new AuthService(credentials);
   this.tokenPromise = authService.tokenPromise;
 
-  this.httpUri    = 'https://api-eu.sapanywhere.com:443';
-  this.version    = 'v1';
+  this.httpUri = 'https://api-eu.sapanywhere.com:443';
+  this.version = 'v1';
 }
 
 Sap.prototype.execute = function (args, callback) {
@@ -35,7 +35,7 @@ Sap.prototype.execute = function (args, callback) {
         if (err) {
           callback(err);
         } else if (!err && res.statusCode !== 200) {
-          callback(new Error(res.statusCode + ' error: ' + data.error));
+          callback(new Error(res.statusCode + ' error: ' + data.message));
         } else {
           callback(null, data);
         }
@@ -56,6 +56,4 @@ function formatParams(params) {
   return requestParams;
 }
 
-module.exports = function (credentials) {
-  return new Sap(credentials);
-};
+module.exports = Sap;
