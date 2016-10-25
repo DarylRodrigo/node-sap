@@ -19,8 +19,8 @@ Sap.prototype.execute = function (args, callback) {
     .then(function (accessToken) {
       var options = {
         method: args.method,
-        url: that.httpUri + '/' + that.version + '/' + args.path
-          + '?' + requestParams + 'access_token=' + accessToken,
+        url: that.httpUri + '/' + that.version + '/' + args.path +
+          '?' + requestParams + 'access_token=' + accessToken,
         headers: {
           'content-type': 'application/json',
         },
@@ -32,14 +32,12 @@ Sap.prototype.execute = function (args, callback) {
 
         if (body) { data = JSON.parse(body); }
 
-        if (err) {
-          return callback(err);
-        } else if (res.statusCode >= 400) {
-          return callback(new Error(res.statusCode + ' error: '
-            + data.message));
-        } else {
-          return callback(null, data, res.statusCode, res.headers);
+        if (!err && res.statusCode >= 400) {
+          err = new Error(res.statusCode + ' error' +
+            (data && data.errorCode ? ': ' + data.message : ''));
         }
+
+        return callback(err, data, res.statusCode, res.headers);
       });
     })
     .catch(function (error) {
