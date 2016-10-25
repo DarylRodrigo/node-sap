@@ -15,9 +15,10 @@ describe('Sap', function () {
     nock('https://my-eu.sapanywhere.com:443/oauth2', {
       reqheaders: { 'content-type': 'application/x-www-form-urlencoded' }
     })
-      .post('/token?client_id=' + credentials.client_id
-        + '&client_secret=' + credentials.client_secret
-        + '&grant_type=refresh_token&refresh_token=' + credentials.refresh_token)
+      .post('/token?client_id=' + credentials.client_id +
+        '&client_secret=' + credentials.client_secret +
+        '&grant_type=refresh_token&refresh_token=' +
+        credentials.refresh_token)
       .reply(200, {
         access_token: mockToken
       });
@@ -32,8 +33,9 @@ describe('Sap', function () {
     it('sends a custom GET request', function (done) {
 
       nock(sapHelper.httpUri)
-        .get('/' + sapHelper.version + '/' + options.path
-          + '?pasta=true&access_token=' + mockToken)
+        .get('/' + sapHelper.version +
+          '/' + options.path +
+          '?pasta=true&access_token=' + mockToken)
         .reply(200, expectedResult);
 
       options.params = {
@@ -56,8 +58,9 @@ describe('Sap', function () {
       };
 
       nock(sapHelper.httpUri)
-        .post('/' + sapHelper.version + '/' + options.path
-          + '?access_token=' + mockToken)
+        .post('/' + sapHelper.version +
+          '/' + options.path +
+          '?access_token=' + mockToken)
         .reply(201, 1);
 
       options.method = 'POST';
@@ -76,15 +79,18 @@ describe('Sap', function () {
         var mockErrorMessage = 'Mock 404 error message';
 
         var badRequest = nock(sapHelper.httpUri)
-          .get('/' + sapHelper.version + '/' + options.path
-            + '?access_token=' + mockToken)
+          .get('/' + sapHelper.version +
+            '/' + options.path +
+            '?access_token=' + mockToken)
           .reply(404, {
+            errorCode: 1234,
             message: mockErrorMessage
           });
 
-        sapHelper.execute(options, function (err) {
-          expect(err.message).to.equal(404 + ' error: '
-            + mockErrorMessage);
+        sapHelper.execute(options, function (err, data, status, headers) {
+          expect(err.message).to.equal(404 + ' error: ' +
+            mockErrorMessage);
+          expect(status).to.equal(404);
           expect(badRequest.isDone()).to.be.true;
           done();
         });
@@ -98,9 +104,10 @@ describe('Sap', function () {
         var badAuthRequest = nock('https://my-eu.sapanywhere.com:443/oauth2', {
           reqheaders: { 'content-type': 'application/x-www-form-urlencoded' }
         })
-          .post('/token?client_id=' + credentials.client_id
-            + '&client_secret=' + credentials.client_secret
-            + '&grant_type=refresh_token&refresh_token=' + credentials.refresh_token)
+          .post('/token?client_id=' + credentials.client_id +
+            '&client_secret=' + credentials.client_secret +
+            '&grant_type=refresh_token' +
+            '&refresh_token=' + credentials.refresh_token)
           .reply(200, {
             error: 'mock_error',
             error_description: 'Mock error description',
@@ -108,7 +115,7 @@ describe('Sap', function () {
 
         sapHelper = new Sap(credentials);
 
-        sapHelper.execute(options, function (err) {
+        sapHelper.execute(options, function (err, data, status, headers) {
           expect(err.message).to.eql('Mock error description');
           expect(badAuthRequest.isDone()).to.be.true;
           done();
