@@ -32,8 +32,8 @@ describe('AuthService', function () {
       var authService = new AuthService(credentials);
 
       authService.tokenPromise
-        .then(function(accessToken) {
-          expect(accessToken).to.equal(mockToken);
+        .then(function(tokenData) {
+          expect(tokenData.access_token).to.equal(mockToken);
           done();
         })
         .catch(done);
@@ -49,8 +49,8 @@ describe('AuthService', function () {
           authService.tokenPromise,
         ])
         .then(function(results) {
-          expect(results[0]).to.equal(mockToken);
-          expect(results[1]).to.equal(mockToken);
+          expect(results[0].access_token).to.equal(mockToken);
+          expect(results[1].access_token).to.equal(mockToken);
           done();
         })
         .catch(done);
