@@ -27,13 +27,13 @@ AuthService.prototype.scheduleTokenRenewal = function () {
     .then(function (tokenData) {
       var tokenExpiry = Math.round((tokenData.expires_in * 1000) / 2);
       setTimeout(function () {
-        that.tokenPromiseInit();
+        that.tokenPromiseInit(that.credentials);
       }, tokenExpiry);
     })
     .catch(function (error) {
       console.log('SAP - Error whilst authenticating: ' + JSON.stringify(error));
       setTimeout(function () {
-        that.tokenPromiseInit();
+        that.tokenPromiseInit(that.credentials);
       }, 5000);
     });
 };
