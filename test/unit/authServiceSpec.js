@@ -17,7 +17,8 @@ describe('AuthService', function () {
       + '&client_secret=' + credentials.client_secret
       + '&grant_type=refresh_token&refresh_token=' + credentials.refresh_token)
     .reply(200, {
-      access_token: mockToken
+      access_token: mockToken,
+      expires_in: 43200
     });
   });
 
