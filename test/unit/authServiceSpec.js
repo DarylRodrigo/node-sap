@@ -9,17 +9,29 @@ var Promise = require('es6-promise').Promise;
 describe('AuthService', function () {
   var mockToken = 'mock_token';
 
-  beforeEach(function() {
+  beforeEach(function () {
     nock('https://my-eu.sapanywhere.com:443/oauth2', {
       reqheaders: { 'content-type': 'application/x-www-form-urlencoded' }
     })
-    .post('/token?client_id=' + credentials.client_id
-      + '&client_secret=' + credentials.client_secret
-      + '&grant_type=refresh_token&refresh_token=' + credentials.refresh_token)
-    .reply(200, {
-      access_token: mockToken,
-      expires_in: 43200
-    });
+      .post('/token?client_id=' + credentials.client_id
+        + '&client_secret=' + credentials.client_secret
+        + '&grant_type=refresh_token&refresh_token=' + credentials.refresh_token)
+      .reply(200, {
+        access_token: mockToken,
+        expires_in: 43200
+      });
+
+    nock('https://my-eu.sapanywhere.com:443/oauth2', {
+      reqheaders: { 'content-type': 'application/x-www-form-urlencoded' }
+    })
+      .persist()
+      .post('/token?client_id=token_renewal_test'
+        + '&client_secret=' + credentials.client_secret
+        + '&grant_type=refresh_token&refresh_token=' + credentials.refresh_token)
+      .reply(200, {
+        access_token: mockToken,
+        expires_in: 1
+      });
   });
 
   describe('initialization', function () {
@@ -29,19 +41,30 @@ describe('AuthService', function () {
       expect(authService.credentials).to.exist;
     });
 
-    it('creates tokenPromise which resolves with an access token', function (done) {
+    it('creates tokenPromise which resolves with an access token and expiry info', function (done) {
       var authService = new AuthService(credentials);
 
       authService.tokenPromise
-        .then(function(tokenData) {
+        .then(function (tokenData) {
           expect(tokenData.access_token).to.equal(mockToken);
           done();
         })
         .catch(done);
     });
 
-    describe('when accessing tokenPromise multiple times', function() {
-      it('does not make multiple accessToken requests', function(done) {
+    it('reinitialises tokenPromise after half the expiry time has passed', function (done) {
+      credentials.client_id = 'token_renewal_test';
+      var authService = new AuthService(credentials);
+      var firstTokenPromise = authService.tokenPromise;
+
+      setTimeout(function () {
+        expect(authService.tokenPromise).to.not.equal(firstTokenPromise);
+        done();
+      }, 600)
+    });
+
+    describe('when accessing tokenPromise multiple times', function () {
+      it('does not make multiple accessToken requests', function (done) {
         // nock will throw an error if the request is made multiple times
         var authService = new AuthService(credentials);
 
@@ -49,7 +72,7 @@ describe('AuthService', function () {
           authService.tokenPromise,
           authService.tokenPromise,
         ])
-        .then(function(results) {
+        .then(function (results) {
           expect(results[0].access_token).to.equal(mockToken);
           expect(results[1].access_token).to.equal(mockToken);
           done();
