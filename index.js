@@ -31,27 +31,28 @@ Sap.prototype.execute = function (args, callback) {
 
         if (body) { data = JSON.parse(body); }
 
-        if (err) {
-          callback(err);
-        } else if (!err && res.statusCode !== 200) {
-          callback(new Error(res.statusCode + ' error: ' + data.message));
-        } else {
-          callback(null, data);
+        if (!err && res.statusCode >= 400) {
+          err = new Error(res.statusCode + ' error' +
+            (data && data.errorCode ? ': ' + data.message : ''));
         }
+
+        return callback(err, data, res.statusCode, res.headers);
       });
     })
     .catch(function (error) {
-      callback(error);
+      return callback(error);
     });
 };
 
 function formatParams(params) {
   var requestParams = '';
+
   for (var key in params) {
     if (params.hasOwnProperty(key)) {
       requestParams += key + '=' + params[key] + '&';
     }
   }
+
   return requestParams;
 }
 
