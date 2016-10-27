@@ -12,36 +12,33 @@ function AuthService(credentials) {
     this.credentials = credentials;
   }
 
-  this.scheduleTokenRenewal(0);
+  this.tokenPromiseInit(this.credentials);
 }
 
-AuthService.prototype.scheduleTokenRenewal = function(delay) {
+AuthService.prototype.tokenPromiseInit = function (credentials) {
+  this.tokenPromise = newTokenPromise(credentials);
+  this.scheduleTokenRenewal();
+};
+
+AuthService.prototype.scheduleTokenRenewal = function () {
   var that = this;
 
-  setTimeout(function() {
-    that.tokenPromise = tokenPromiseInit(that.credentials)
+  this.tokenPromise
+    .then(function (tokenData) {
+      var tokenExpiry = Math.round((tokenData.expires_in * 1000) / 2);
+      setTimeout(function () {
+        that.tokenPromiseInit();
+      }, tokenExpiry);
+    })
+    .catch(function (error) {
+      console.log('SAP - Error whilst authenticating: ' + JSON.stringify(error));
+      setTimeout(function () {
+        that.tokenPromiseInit();
+      }, 5000);
+    });
+};
 
-    that.tokenPromise
-      .then(function (tokenData) {
-        that.tokenExpiry = Math.round((tokenData.expires_in * 1000) / 2);
-        that.scheduleTokenRenewal(that.tokenExpriy);
-      })
-      .catch(function (error) {
-        console.log('SAP - Error while authenticating: ' + JSON.stringify(error));
-        that.scheduleTokenRenewal(500);
-      });
-  }, delay);
-}
-
-function tokenPromiseInit(credentials) {
-  return new Promise(function(resolve, reject) {
-    getAccessToken(credentials)
-      .then(resolve)
-      .catch(reject);
-  });
-}
-
-function getAccessToken(credentials) {
+function newTokenPromise(credentials) {
   var options = {
     method: 'POST',
     url: 'https://my-eu.sapanywhere.com:443/oauth2/token?client_id=' + credentials.client_id
@@ -52,7 +49,7 @@ function getAccessToken(credentials) {
     },
   };
 
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     request(options, function (err, res, body) {
       var data;
       if (body) { data = JSON.parse(body); }
