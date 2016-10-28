@@ -13,9 +13,9 @@ describe('AuthService', function () {
     nock('https://my-eu.sapanywhere.com:443/oauth2', {
       reqheaders: { 'content-type': 'application/x-www-form-urlencoded' }
     })
-      .post('/token?client_id=' + credentials.client_id
-        + '&client_secret=' + credentials.client_secret
-        + '&grant_type=refresh_token&refresh_token=' + credentials.refresh_token)
+      .post('/token?client_id=' + credentials.client_id +
+        '&client_secret=' + credentials.client_secret +
+        '&grant_type=refresh_token&refresh_token=' + credentials.refresh_token)
       .reply(200, {
         access_token: mockToken,
         expires_in: 43200
@@ -44,16 +44,16 @@ describe('AuthService', function () {
         .catch(done);
     });
 
-    it('reinitialises tokenPromise after half the expiry time has passed', function (done) {
+    it('repeatedly reinitialises tokenPromise after half its expiry time', function (done) {
       credentials.client_id = 'token_renewal_test';
 
       nock('https://my-eu.sapanywhere.com:443/oauth2', {
         reqheaders: { 'content-type': 'application/x-www-form-urlencoded' }
       })
         .persist()
-        .post('/token?client_id=' + credentials.client_id
-          + '&client_secret=' + credentials.client_secret
-            + '&grant_type=refresh_token&refresh_token=' + credentials.refresh_token)
+        .post('/token?client_id=' + credentials.client_id +
+          '&client_secret=' + credentials.client_secret +
+          '&grant_type=refresh_token&refresh_token=' + credentials.refresh_token)
         .reply(200, {
           access_token: mockToken,
           expires_in: 1
@@ -63,8 +63,14 @@ describe('AuthService', function () {
       var firstTokenPromise = authService.tokenPromise;
 
       setTimeout(function () {
-        expect(authService.tokenPromise).to.not.equal(firstTokenPromise);
-        done();
+        var secondTokenPromise = authService.tokenPromise;
+        setTimeout(function () {
+          var thirdTokenPromise = authService.tokenPromise;
+          expect(firstTokenPromise).to.not.equal(secondTokenPromise);
+          expect(firstTokenPromise).to.not.equal(thirdTokenPromise);
+          expect(secondTokenPromise).to.not.equal(thirdTokenPromise);
+          done();
+        }, 600)
       }, 600)
     });
 
