@@ -6,6 +6,8 @@ var Sap = require('../../index');
 var credentials = require('../support/testCredentials');
 
 describe('Sap', function () {
+  this.timeout(6000);
+
   describe('execute', function () {
     var options,
       sapHelper = new Sap(credentials),
