@@ -7,6 +7,7 @@ var AuthService = require('../../services/authService');
 var Promise = require('es6-promise').Promise;
 
 describe('AuthService', function () {
+  this.timeout(6000);
   var mockToken = 'mock_token';
 
   beforeEach(function () {
