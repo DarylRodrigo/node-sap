@@ -4,8 +4,6 @@ var request = require('request');
 var Promise = require('es6-promise').Promise;
 
 function AuthService(credentials) {
-  var that = this;
-
   if (!credentials) {
     throw new Error('SAP - Please provide credentials.');
   } else if (!credentials.client_id || !credentials.client_secret || !credentials.refresh_token) {
@@ -14,14 +12,33 @@ function AuthService(credentials) {
     this.credentials = credentials;
   }
 
-  this.tokenPromise = new Promise(function(resolve, reject) {
-    getAccessToken(that.credentials)
-      .then(resolve)
-      .catch(reject);
-  });
+  this.tokenPromiseInit(this.credentials);
 }
 
-function getAccessToken(credentials) {
+AuthService.prototype.tokenPromiseInit = function (credentials) {
+  this.tokenPromise = newTokenPromise(credentials);
+  this.scheduleTokenRenewal();
+};
+
+AuthService.prototype.scheduleTokenRenewal = function () {
+  var that = this;
+
+  this.tokenPromise
+    .then(function (tokenData) {
+      var tokenExpiry = Math.round((tokenData.expires_in * 1000) / 2);
+      setTimeout(function () {
+        that.tokenPromiseInit(that.credentials);
+      }, tokenExpiry);
+    })
+    .catch(function (error) {
+      console.log('SAP - Error whilst authenticating: ' + JSON.stringify(error));
+      setTimeout(function () {
+        that.tokenPromiseInit(that.credentials);
+      }, 5000);
+    });
+};
+
+function newTokenPromise(credentials) {
   var options = {
     method: 'POST',
     url: 'https://my-eu.sapanywhere.com:443/oauth2/token?client_id=' + credentials.client_id
@@ -32,18 +49,17 @@ function getAccessToken(credentials) {
     },
   };
 
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     request(options, function (err, res, body) {
       var data;
-
       if (body) { data = JSON.parse(body); }
 
       if (err) {
         reject(err);
-      } else if (!err && data.error) {
+      } else if (data.error) {
         reject(new Error(data.error_description));
       } else {
-        resolve(data.access_token);
+        resolve(data);
       }
     });
   });
