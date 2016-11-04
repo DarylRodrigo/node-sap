@@ -65,9 +65,7 @@ describe.only('Sap', function () {
         expect(_res).to.eql(expectedResult_v1);
         done()
       })
-      .catch( function(error) {
-        done();
-      })
+      .catch( done );
     });
 
     it('should refresh catch after expirary.', function (done) {
