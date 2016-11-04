@@ -68,7 +68,7 @@
 //     var body = {"firstName": "lol"}
 //     Customer.updateById(sampleCustomer.id, body)
 //     .then( function(_customer) {
-//       return Customer.findAllById(sampleCustomer.id);
+//       return Customer.findById(sampleCustomer.id);
 //     })
 //     .then( function(_customer) {
 //       _customer.firstName.should.equal("Lol")

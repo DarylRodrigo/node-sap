@@ -13,10 +13,8 @@ function Sap(credentials) {
 }
 
 Sap.prototype.execute = function (args, callback) {
-  var that = this;
-  console.log(args)
-  that.sapRequest.execute(args, function(error, data) {
-    callback (error, data);
+  this.sapRequest.execute(args, function(error, data, status, headers) {
+    callback (error, data, status, headers);
   })
 };
 

@@ -54,7 +54,7 @@ Resource.prototype.findAll = function (filter) {
   })
 }
 
-Resource.prototype.findAllById = function(id, filter) {
+Resource.prototype.findById = function(id, filter) {
   var that = this;
 
   return new Promise(function (resolve, reject) {

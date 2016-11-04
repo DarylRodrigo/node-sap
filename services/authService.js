@@ -57,7 +57,7 @@ function newTokenPromise(credentials) {
       if (err) {
         reject(err);
       } else if (data.error) {
-        reject(data.error_description);
+        reject(new Error(data.error_description));
       } else {
         resolve(data);
       }
