@@ -2,10 +2,23 @@
 
 var Promise = require('es6-promise').Promise;
 var execute = require('./executeService');
+var NodeCache = require('node-cache');
 
-function Resource(resourceName, sapRequest) {
+function Resource(resourceName, sapRequest, options) {
   this.resourceName = resourceName;
   this.sapRequest = sapRequest
+  this.cache = false;
+
+  if (options.cache) {
+    var checkPeriod = (options.cacheTime) ?  options.cacheTime : 60 ;
+    var stdTTL = (options.stdTTL) ? options.stdTTL : 120 ;
+
+    this.cache = true;
+    this.resourecCache = new NodeCache({
+      stdTTL: stdTTL,
+      checkperiod: checkPeriod,
+    });
+  }
 }
 
 Resource.prototype.create = function (body) {
@@ -32,26 +45,55 @@ Resource.prototype.create = function (body) {
 
 Resource.prototype.findAll = function (filter) {
   var that = this;
+  var requestParams = {
+    method: 'GET',
+    path: that.resourceName
+  };
+
+  if (filter) requestParams.params =  { "filter": filter };
 
   return new Promise(function (resolve, reject) {
 
-    var requestParams = {
-      method: 'GET',
-      path: that.resourceName
-    };
+    // check if cached
+    if (that.cache) {
+      that.resourecCache.get(that.resourceName, function(error, val) {
+        if (error) reject(error);
 
-    if (filter) requestParams.params =  { "filter": filter };
+        if (val === undefined) {
+          that.sapRequest.execute(requestParams,function(error, data) {
+            if (error) {
+              reject (error);
+            }
+            else {
+              that.resourecCache.set(that.resourceName, data, function( err, success ){
+                if( !err && success ){
+                  resolve (data);
+                }
+                else {
+                  reject(err);
+                }
+              });
+              
+            }
+          });
 
-    that.sapRequest.execute(requestParams,function(error, data) {
-
-      if (error) {
-        reject (error);
-      }
-      else {
-        resolve (data);
-      }
-    })
-  })
+        } else {
+          resolve(val);
+        }
+      });
+    } 
+    // if cached if off - do request
+    else {
+      that.sapRequest.execute(requestParams,function(error, data) {
+        if (error) {
+          reject (error);
+        }
+        else {
+          resolve (data);
+        }
+      });
+    }
+  });
 }
 
 Resource.prototype.findById = function(id, filter) {

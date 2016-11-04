@@ -41,7 +41,7 @@ SapRequest.prototype.execute= function (args, callback) {
 					(data && data.errorCode ? ': ' + data.message : ''));
 			}
 
-			return callback(err, data, res.statusCode, res.headers);
+			return callback(err, data);
 		});
 	})
 	.catch(function (error) {

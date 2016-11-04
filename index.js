@@ -18,8 +18,8 @@ Sap.prototype.execute = function (args, callback) {
   })
 };
 
-Sap.prototype.createResource = function (resourceName) {
-  return new Resource(resourceName, this.sapRequest);
+Sap.prototype.createResource = function (resourceName, options) {
+  return new Resource(resourceName, this.sapRequest, options);
 }
 
 module.exports = Sap;

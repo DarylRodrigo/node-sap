@@ -16,8 +16,6 @@ describe('End-to-end tests', function () {
   this.timeout(6000);
   var sapHelper = new Sap(credentials);
 
-
-
   describe('execute', function () {
 
     var options = {
@@ -25,7 +23,7 @@ describe('End-to-end tests', function () {
       path: 'Products',
       params: { expand: 'skus' }
     };
-    
+
     describe('GET', function () {
       it('sends a custom GET request', function (done) {
         sapHelper.execute(options, function (err, data, status, headers) {
@@ -157,7 +155,6 @@ describe('End-to-end tests', function () {
         done(error);
       });
     });
-
   });
 
 });

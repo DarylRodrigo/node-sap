@@ -54,6 +54,7 @@
   "dependencies": {
     "chai-as-promised": "^6.0.0",
     "es6-promise": "^4.0.5",
+    "node-cache": "^4.1.0",
     "request": "^2.75.0"
   }
 }
