@@ -4,6 +4,8 @@ var request = require('request');
 var Promise = require('es6-promise').Promise;
 
 function AuthService(credentials) {
+  this.authorisationAttempts = 0;
+
   if (!credentials) {
     throw new Error('SAP - Please provide credentials.');
   } else if (!credentials.client_id || !credentials.client_secret || !credentials.refresh_token) {
@@ -25,16 +27,26 @@ AuthService.prototype.scheduleTokenRenewal = function () {
 
   this.tokenPromise
     .then(function (tokenData) {
+      this.authorisationAttempts = 0;
       var tokenExpiry = Math.round((tokenData.expires_in * 1000) / 2);
+
       setTimeout(function () {
         that.tokenPromiseInit(that.credentials);
       }, tokenExpiry);
     })
     .catch(function (error) {
-      console.log('SAP - Error whilst authenticating: ' + JSON.stringify(error));
-      setTimeout(function () {
-        that.tokenPromiseInit(that.credentials);
-      }, 5000);
+
+      if (this.authorisationAttempts < 3) {
+        this.authorisationAttempts++;
+        console.log('SAP - Error whilst authenticating: ' + JSON.stringify(error) + ". Retrying Attempt " + this.authorisationAttempts);
+        setTimeout(function () {
+          that.tokenPromiseInit(that.credentials);
+        }, 5000);
+      } else {
+        reject(error)
+      }
+      
+      
     });
 };
 
