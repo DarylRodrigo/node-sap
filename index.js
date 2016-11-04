@@ -1,59 +1,27 @@
 'use strict';
 
 var request = require('request');
-var AuthService = require('./services/authService');
+var Resource = require('./services/resourceService');
+var SapRequest = require('./services/executeService');
 
 function Sap(credentials) {
-  this.authService = new AuthService(credentials);
-
+  this.credentials = credentials;
   this.httpUri = 'https://api-eu.sapanywhere.com:443';
   this.version = 'v1';
+
+  this.sapRequest = new SapRequest(this.credentials);
 }
 
 Sap.prototype.execute = function (args, callback) {
   var that = this;
-  var requestParams = formatParams(args.params);
-
-  that.authService.tokenPromise
-    .then(function (tokenData) {
-      var options = {
-        method: args.method,
-        url: that.httpUri + '/' + that.version + '/' + args.path
-          + '?' + requestParams + 'access_token=' + tokenData.access_token,
-        headers: {
-          'content-type': 'application/json',
-        },
-        body: JSON.stringify(args.body),
-      };
-
-      request(options, function (err, res, body) {
-        var data;
-
-        if (body) { data = JSON.parse(body); }
-
-        if (!err && res.statusCode >= 400) {
-          err = new Error(res.statusCode + ' error' +
-            (data && data.errorCode ? ': ' + data.message : ''));
-        }
-
-        return callback(err, data, res.statusCode, res.headers);
-      });
-    })
-    .catch(function (error) {
-      return callback(error);
-    });
+  console.log(args)
+  that.sapRequest.execute(args, function(error, data) {
+    callback (error, data);
+  })
 };
 
-function formatParams(params) {
-  var requestParams = '';
-
-  for (var key in params) {
-    if (params.hasOwnProperty(key)) {
-      requestParams += key + '=' + params[key] + '&';
-    }
-  }
-
-  return requestParams;
+Sap.prototype.createResource = function (resourceName) {
+  return new Resource(resourceName, this.sapRequest);
 }
 
 module.exports = Sap;

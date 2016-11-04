@@ -51,7 +51,7 @@ describe('Sap', function () {
       });
     });
 
-    it('sends a custom POST request', function (done) {
+    xit('sends a custom POST request', function (done) {
       var customer = {
         "customerType": "INDIVIDUAL_CUSTOMER",
         "firstName": "Rick",
@@ -76,7 +76,7 @@ describe('Sap', function () {
     });
 
     describe('when it receives an error status code', function () {
-      it('passes an error to the callback', function (done) {
+      xit('passes an error to the callback', function (done) {
         options.path = 'Invalid';
         var mockErrorMessage = 'Mock 404 error message';
 
@@ -100,7 +100,7 @@ describe('Sap', function () {
     });
 
     describe('when unable to authorize', function () {
-      it('passes an error to the callback', function (done) {
+      xit('passes an error to the callback', function (done) {
         credentials.client_id = 'invalid';
 
         var badAuthRequest = nock('https://my-eu.sapanywhere.com:443/oauth2', {

@@ -52,6 +52,7 @@
     "sinon": "^1.17.6"
   },
   "dependencies": {
+    "chai-as-promised": "^6.0.0",
     "es6-promise": "^4.0.5",
     "request": "^2.75.0"
   }

@@ -32,9 +32,60 @@ var sap = new sapHelper(credentials);
 }
 ```
 
+#### `Creating resources`
+
+For your convenience the module creates resources which have the standard CRUD methods (minus the D, as sap doesnt allow you to delete objects). In order to create a resource, instantiate the module and use the `createResource` function to return a class which all the methods associated with it. Note that promises are returned from the resource creator.
+
+#### Example: Creating a `Customer` Resource
+
+For example, to instantiate a Customer resource.
+
+```
+var sap = new sapHelper(credentials);
+var Customer = sap.createResource("Customers");
+```
+
+#### Example: Using a resource to create an instance of said resource
+
+```
+Customer.create(body)
+.then( function (_id) {
+    // do something with id
+})
+.catch( function (err) {
+    // handle error
+})
+```
+
+#### Example: finding all resources with email of "example@sap.com"
+
+```
+var filter = "id eq 'example@sap.co'"
+Customer.findll(filter)
+.then( function (_id) {
+    // do something with id
+})
+.catch( function (err) {
+    // handle error
+})
+```
+
+List of functions - note that the filter parameter is optional
+
+`Customer.create(body)`
+
+`Customer.findAll(filter)`
+
+`Customer.findById(id, filter)`
+
+`Customer.updateById(id, body)`
+
+a more extensive list of filters can be found [here](https://doc-eu.sapanywhere.com/api/spec/query)
+
+
 #### `execute()`
 
-The module exposes a single public `execute` method that allows you to send requests to the SAP Anywhere API. The function will automatically fetch an access token based on your credentials.
+The module also exposes a public `execute` method that allows you to send requests to the SAP Anywhere API. The function will automatically fetch an access token based on your credentials.
 
 The `execute` method takes two parameters, an options object and a callback.
 The options object can contain the following properties:
