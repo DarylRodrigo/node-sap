@@ -8,7 +8,11 @@ function AuthService(credentials) {
 
   if (!credentials) {
     throw new Error('SAP - Please provide credentials.');
-  } else if (!credentials.client_id || !credentials.client_secret || !credentials.refresh_token) {
+  } else if (
+    !credentials.client_id ||
+    !credentials.client_secret ||
+    !credentials.refresh_token
+  ) {
     throw new Error('SAP - Insufficient credentials.');
   } else {
     this.credentials = credentials;
@@ -24,9 +28,10 @@ function AuthService(credentials) {
 function getAccessToken(credentials) {
   var options = {
     method: 'POST',
-    url: 'https://my-eu.sapanywhere.com:443/oauth2/token?client_id=' + credentials.client_id
-          + '&client_secret=' + credentials.client_secret
-          + '&grant_type=refresh_token&refresh_token=' + credentials.refresh_token,
+    url: 'https://my-eu.sapanywhere.com:443/oauth2/token' +
+      '?client_id=' + credentials.client_id +
+      '&client_secret=' + credentials.client_secret +
+      '&grant_type=refresh_token&refresh_token=' + credentials.refresh_token,
     headers: {
       'content-type': 'application/x-www-form-urlencoded',
     },
