@@ -5,7 +5,7 @@ var expect = require('chai').expect;
 var Sap = require('../../index');
 var credentials = require('../support/testCredentials');
 
-describe.only('Sap', function () {
+describe('Sap', function () {
   this.timeout(6000);
 
   describe('execute', function () {
