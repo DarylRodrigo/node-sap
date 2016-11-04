@@ -60,8 +60,8 @@ Customer.create(body)
 #### Example: finding all resources with email of "example@sap.com"
 
 ```
-var filter = "id eq 'example@sap.co'"
-Customer.findll(filter)
+var filter = "email eq 'example@sap.co'"
+Customer.findAll(filter)
 .then( function (_id) {
     // do something with id
 })
@@ -86,7 +86,7 @@ a more extensive list of filters can be found [here](https://doc-eu.sapanywhere.
 Use the `stdTTL` and `checkPeriod` in order to set how long you want the cache to last. Please make sure you set cache to true if you want to enable caching.
 
 ```
-var Customer = sapHelper.createResource("Customers", {cache:true, stdTTL: 1, checkPeriod: 1});
+var Customer = sapHelper.createResource("Customers", {cache:true, stdTTL: 120, checkPeriod: 60});
 ```
 
 #### `execute()`
