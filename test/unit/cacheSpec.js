@@ -5,7 +5,7 @@ var expect = require('chai').expect;
 var Sap = require('../../index');
 var credentials = require('../support/testCredentials');
 
-describe('Sap', function () {
+describe.only('Sap', function () {
   this.timeout(6000);
 
   describe('execute', function () {
@@ -16,7 +16,7 @@ describe('Sap', function () {
       expectedResult_v2 = [{ 'id': '2' }];
 
 
-    var Customer = sapHelper.createResource("Customers", {cache:true, stdTTL: 1, cacheTime: 1});
+    var Customer = sapHelper.createResource("Customers", {cache:true, stdTTL: 1, checkPeriod: 1});
 
     nock('https://my-eu.sapanywhere.com:443/oauth2', {
       reqheaders: { 'content-type': 'application/x-www-form-urlencoded' }

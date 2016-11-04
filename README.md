@@ -34,7 +34,7 @@ var sap = new sapHelper(credentials);
 
 #### `Creating resources`
 
-For your convenience the module creates resources which have the standard CRUD methods (minus the D, as sap doesnt allow you to delete objects). In order to create a resource, instantiate the module and use the `createResource` function to return a class which all the methods associated with it. Note that promises are returned from the resource creator.
+For your convenience the module creates resources which have the standard CRUD methods (minus the D, as sap doesnt allow you to delete objects). In order to create a resource, instantiate the module and use the `createResource` function to return a class which all the methods associated with it. Note that promises are returned from the resource creator. Also added in this module is the ability to cache resources (**only applied to findAll method**) - by setting the cached option as true you can enable this option, see example below.
 
 #### Example: Creating a `Customer` Resource
 
@@ -82,6 +82,12 @@ List of functions - note that the filter parameter is optional
 
 a more extensive list of filters can be found [here](https://doc-eu.sapanywhere.com/api/spec/query)
 
+#### Example: caching a resource
+Use the `stdTTL` and `checkPeriod` in order to set how long you want the cache to last. Please make sure you set cache to true if you want to enable caching.
+
+```
+var Customer = sapHelper.createResource("Customers", {cache:true, stdTTL: 1, checkPeriod: 1});
+```
 
 #### `execute()`
 
@@ -101,7 +107,7 @@ The `execute` method passes four arguments to the handler callback:
 * a `status` code integer
 * a `headers` object
 
-#### Example: `GET` request
+#### Example: `GET` request
 
 For example, to fetch a list of all products and expand their skus:
 
