@@ -4,8 +4,7 @@ var request = require('request');
 var AuthService = require('./services/authService');
 
 function Sap(credentials) {
-  var authService = new AuthService(credentials);
-  this.tokenPromise = authService.tokenPromise;
+  this.authService = new AuthService(credentials);
 
   this.httpUri = 'https://api-eu.sapanywhere.com:443';
   this.version = 'v1';
@@ -15,12 +14,12 @@ Sap.prototype.execute = function (args, callback) {
   var that = this;
   var requestParams = formatParams(args.params);
 
-  that.tokenPromise
-    .then(function (accessToken) {
+  that.authService.tokenPromise
+    .then(function (tokenData) {
       var options = {
         method: args.method,
-        url: that.httpUri + '/' + that.version + '/' + args.path +
-          '?' + requestParams + 'access_token=' + accessToken,
+        url: that.httpUri + '/' + that.version + '/' + args.path
+          + '?' + requestParams + 'access_token=' + tokenData.access_token,
         headers: {
           'content-type': 'application/json',
         },
