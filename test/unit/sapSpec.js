@@ -8,6 +8,8 @@ var Sap = require('../../index');
 var testCredentials = require('../support/testCredentials');
 
 describe('Sap', function () {
+  this.timeout(6000);
+
   describe('execute', function () {
     var options,
         sapHelper,
