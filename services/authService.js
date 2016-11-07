@@ -63,7 +63,9 @@ AuthService.prototype.getAccessToken = function (credentials, cb) {
         return cb(err);
       });
   } else {
-    cb (null, that.cache.get('accessToken'));
+    that.cache.get('accessToken', function (err, accessToken) {
+      cb(err, accessToken);
+    });
   }
 }
 
