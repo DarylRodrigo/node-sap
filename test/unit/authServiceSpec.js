@@ -1,15 +1,22 @@
 'use strict';
 
-var expect = require('chai').expect;
+var chai = require('chai');
+var expect = chai.expect;
 var nock = require('nock');
+var sinon = require('sinon');
+var sinonChai = require('sinon-chai');
 var Promise = require('es6-promise').Promise;
 var testCredentials = require('../support/testCredentials');
 var AuthService = require('../../services/authService');
 
+chai.use(sinonChai);
+
 describe('AuthService', function () {
   var mockToken = 'mock_token',
       authService,
-      credentials;
+      credentials,
+      cacheGet,
+      cacheSet;
 
   beforeEach(function() {
     credentials = JSON.parse(JSON.stringify(testCredentials));
@@ -25,10 +32,15 @@ describe('AuthService', function () {
         access_token: mockToken,
         expires_in: 43199
       });
+
+      cacheGet = sinon.stub(authService.cache, 'get');
+      cacheSet = sinon.stub(authService.cache, 'set');
   });
 
   afterEach(function () {
     nock.cleanAll();
+    cacheGet.restore();
+    cacheSet.restore();
   });
 
   describe('initialization', function () {
@@ -66,6 +78,9 @@ describe('AuthService', function () {
 
     describe('when accessing tokenPromise multiple times', function() {
       it('does not make multiple accessToken requests', function(done) {
+        cacheGet.restore();
+        cacheSet.restore();
+
         // nock will throw an error if the request is made multiple times
         Promise.all([
           authService.accessToken(),
