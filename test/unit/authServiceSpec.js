@@ -80,6 +80,22 @@ describe('AuthService', function () {
       });
     });
 
+    describe('when attempting multiple authorization requests', function () {
+      it('waits for 1s before re-attempting', function (done) {
+        authService.isGettingAccessTokenFlag = true;
+        var timerStart = new Date().getTime();
+
+        authService.accessToken()
+          .then(function (accessToken) {
+            var duration = new Date().getTime() - timerStart;
+
+            expect(accessToken).to.equal(mockToken);
+            expect(duration).to.be.above(1000);
+            done();
+          });
+      });
+    });
+
     describe('when token expiry has elapsed', function () {
       it('fetches and resolves with a new token', function (done) {
         var expiry = 1;
