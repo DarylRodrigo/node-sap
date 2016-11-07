@@ -5,7 +5,7 @@ var NodeCache = require('node-cache');
 
 function Resource(resourceName, sapHelper, options) {
   this.resourceName = resourceName;
-  this.sapHelper = sapHelper
+  this.sapHelper = sapHelper;
   this.isCaching = false;
 
   if (options && options.isCaching) {
@@ -30,8 +30,14 @@ Resource.prototype.create = function (body) {
       body: body
     };
 
-    that.sapHelper.execute(requestParams, function(error, data) {
+    that.sapHelper.execute(requestParams, function(error, data, status) {
       if (error) reject (error);
+      else if (!error && status >= 400) {
+        error = new Error(status + ' error' +
+          (data && data.errorCode ? ': ' + data.message : ''));
+
+        reject(error);
+      }
       else resolve (data);
     });
   });
@@ -48,15 +54,20 @@ Resource.prototype.findAll = function (filter) {
   if (filter) requestParams.params = { "filter": filter };
 
   return new Promise(function (resolve, reject) {
-    // check if cached
+    // check if caching is on
     if (that.isCaching) {
       that.cache.get(that.resourceName, function (error, val) {
         if (error) reject(error);
 
         if (val === undefined) {
-          that.sapHelper.execute(requestParams,function (error, data) {
+          that.sapHelper.execute(requestParams, function (error, data, status) {
             if (error) reject(error);
-            else {
+            else if (!error && status >= 400) {
+              error = new Error(status + ' error' +
+                (data && data.errorCode ? ': ' + data.message : ''));
+
+              reject(error);
+            } else {
               that.cache.set(that.resourceName, data, function (err, success) {
                 if (!err && success) resolve(data);
                 else reject(err);
@@ -68,9 +79,16 @@ Resource.prototype.findAll = function (filter) {
         }
       });
     } else {
-      // if caching is off - do request
-      that.sapHelper.execute(requestParams, function (error, data) {
+      // if caching is off, execute request
+      // TODO: handle error statuses
+      that.sapHelper.execute(requestParams, function (error, data, status) {
         if (error) reject(error);
+        else if (!error && status >= 400) {
+          error = new Error(status + ' error' +
+						(data && data.errorCode ? ': ' + data.message : ''));
+
+          reject(error);
+        }
         else resolve(data);
       });
     }

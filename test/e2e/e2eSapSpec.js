@@ -74,7 +74,7 @@ describe('Sap e2e tests', function () {
         sapHelper.execute(options, function (err, data, status, headers) {
           expect(status).to.equal(201);
           expect(headers.server).to.equal('SAP');
-          expect(data).to.be.above(0);
+          expect(data).to.be.a.number;
           done();
         });
       });
