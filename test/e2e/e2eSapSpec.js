@@ -2,22 +2,14 @@
 
 var expect = require('chai').expect;
 var Promise = require('es6-promise').Promise;
-var chai = require("chai")
-var chaiAsPromised = require('chai-as-promised');
-var sampleCustomer = require('../support/sampleCustomer');
-
-chai.use(chaiAsPromised);
-chai.should();
-
 var Sap = require('../../index');
 var credentials = require('../support/testCredentials');
 
-describe('End-to-end tests', function () {
+describe('Sap e2e tests', function () {
   this.timeout(6000);
   var sapHelper = new Sap(credentials);
 
   describe('execute', function () {
-
     var options = {
       method: 'GET',
       path: 'Products',
@@ -41,8 +33,8 @@ describe('End-to-end tests', function () {
         var executeAsPromised = function () {
           return new Promise(function(resolve, reject) {
             sapHelper.execute(options, function (err, data) {
-              if (err) { reject(err); }
-              else { resolve(data); }
+              if (err) reject(err);
+              else resolve(data);
             });
           });
         };
@@ -64,7 +56,7 @@ describe('End-to-end tests', function () {
     The following tests modify the live SAP API.
     To run them, remove the `.skip` on the next line
     * * * * * * * * * * * * * * * * * * * * * * * */
-    describe('POST', function () {
+    describe.skip('POST', function () {
       it('sends a custom POST request', function (done) {
         options = {
           method: 'POST',
@@ -87,74 +79,9 @@ describe('End-to-end tests', function () {
         });
       });
     });
-  });
 
-  describe('Resource', function () {
-    this.timeout(60000);
-    var Customer = sapHelper.createResource("Customers");
-
-    it('should be able to create a resource', function (done) {
-      sampleCustomer.email = new Date().getTime() + "@pi-top.com";
-
-      Customer.create(sampleCustomer)
-      .then( function(_customerId) {
-        _customerId.should.to.be.a("number");
-        sampleCustomer.id = _customerId;
-        done();
-      })
-      .catch ( function(error) {
-        done(error);
-      });
-    });
-
-    it('should be able to find all of a resource', function (done) {
-      Customer.findAll()
-      .then( function(_customers) {
-        _customers.length.should.to.be.a("number")
-        done();
-      })
-      .catch ( function(error) {
-        done(error);
-      });
-    });
-
-    it('should be able to find all of a resource with filter', function (done) {
-      var filter = "id eq " + sampleCustomer.id
-      Customer.findAll(filter)
-      .then( function(_customers) {
-        _customers[0].id.should.equal(sampleCustomer.id)
-        done();
-      })
-      .catch ( function(error) {
-        done(error);
-      });
-    });
-
-    it('should be able to find resource by id', function (done) {
-      Customer.findById(sampleCustomer.id)
-      .then( function(_customer) {
-        _customer.id.should.equal(sampleCustomer.id)
-        done();
-      })
-      .catch ( function(error) {
-        done(error);
-      });
-    });
-
-    it('should be able to find update resource by id', function (done) {
-      var body = {"firstName": "lol"}
-      Customer.updateById(sampleCustomer.id, body)
-      .then( function(_customer) {
-        return Customer.findById(sampleCustomer.id);
-      })
-      .then( function(_customer) {
-        _customer.firstName.should.equal("Lol")
-        done();
-      })
-      .catch ( function(error) {
-        done(error);
-      });
+    describe.skip('PUT/PATCH', function () {
+      // TODO: write PUT test
     });
   });
-
 });

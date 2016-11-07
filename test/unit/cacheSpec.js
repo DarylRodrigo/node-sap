@@ -5,15 +5,15 @@ var expect = require('chai').expect;
 var Sap = require('../../index');
 var credentials = require('../support/testCredentials');
 
-describe('Sap', function () {
+describe.skip('Cache', function () {
   this.timeout(6000);
 
   describe('execute', function () {
     var options,
-      sapHelper = new Sap(credentials),
-      mockToken = 'mock_token',
-      expectedResult_v1 = [{ 'id': '1' }],
-      expectedResult_v2 = [{ 'id': '2' }];
+        sapHelper = new Sap(credentials),
+        mockToken = 'mock_token',
+        expectedResult_v1 = [{ 'id': '1' }],
+        expectedResult_v2 = [{ 'id': '2' }];
 
 
     var Customer = sapHelper.createResource("Customers", {cache:true, stdTTL: 1, checkPeriod: 1});
@@ -45,7 +45,7 @@ describe('Sap', function () {
           '?access_token=' + mockToken)
         .reply(200, expectedResult_v1);
 
-      
+
 
       Customer.findAll()
       .then( function (_res) {
@@ -70,7 +70,7 @@ describe('Sap', function () {
 
     it('should refresh catch after expirary.', function (done) {
       setTimeout( function() {
-        
+
         nock(sapHelper.httpUri)
         .get('/' + sapHelper.version +
           '/' + options.path +
@@ -83,7 +83,7 @@ describe('Sap', function () {
           done();
         })
         .catch( done );
-        
+
       }, 2000)
     })
   });

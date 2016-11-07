@@ -1,10 +1,9 @@
 'use strict';
 
-var Promise = require('es6-promise').Promise;
-var AuthService = require('./authService');
 var request = require('request');
+var AuthService = require('./authService');
 
-function SapRequest(credentials) {
+function SapHelper(credentials) {
 	this.credentials = credentials;
 
 	this.httpUri = 'https://api-eu.sapanywhere.com:443';
@@ -13,40 +12,40 @@ function SapRequest(credentials) {
 	this.authService = new AuthService(this.credentials);
 }
 
-SapRequest.prototype.execute= function (args, callback) {
+SapHelper.prototype.execute = function (args, callback) {
 	var that = this;
 	var requestParams = formatParams(args.params);
 
 
-	that.authService.tokenPromise
-	.then(function (tokenData) {
-		var options = {
-			method: args.method,
-			url: that.httpUri + '/' + that.version + '/' + args.path
-				+ '?' + requestParams + 'access_token=' + tokenData.access_token,
-			headers: {
-				'content-type': 'application/json',
-			},
-			body: JSON.stringify(args.body),
-		};
+	that.authService.accessToken()
+		.then(function (accessToken) {
+			var options = {
+				method: args.method,
+				url: that.httpUri + '/' + that.version + '/' + args.path
+					+ '?' + requestParams + 'access_token=' + accessToken,
+				headers: {
+					'content-type': 'application/json',
+				},
+				body: JSON.stringify(args.body),
+			};
 
 
-		request(options, function (err, res, body) {
-			var data;
+			request(options, function (err, res, body) {
+				var data;
 
-			if (body) { data = JSON.parse(body); }
+				if (err && !res) return callback(err);
 
-			if (!err && res.statusCode >= 400) {
-				err = new Error(res.statusCode + ' error' +
-					(data && data.errorCode ? ': ' + data.message : ''));
-			}
+				if (body) { data = JSON.parse(body); }
 
-			return callback(err, data);
-		});
-	})
-	.catch(function (error) {
-		return callback(error);
-	});
+				if (!err && res.statusCode >= 400) {
+					err = new Error(res.statusCode + ' error' +
+						(data && data.errorCode ? ': ' + data.message : ''));
+				}
+
+				return callback(err, data, res.statusCode, res.headers);
+			});
+		})
+		.catch(callback);
 }
 
 function formatParams(params) {
@@ -61,4 +60,4 @@ function formatParams(params) {
 	return requestParams;
 }
 
-module.exports = SapRequest;
+module.exports = SapHelper;
