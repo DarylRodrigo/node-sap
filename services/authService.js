@@ -18,54 +18,53 @@ function AuthService(credentials) {
   }
 
   this.cache = new NodeCache(60 * 60);
-  this.isGettingAccessTokenFlag = false;
+  this.isGettingAccessToken = false;
 }
 
 AuthService.prototype.accessToken = function () {
   var that = this;
 
   return new Promise(function(resolve, reject) {
-    if (!that.isGettingAccessTokenFlag) {
+    if (!that.isGettingAccessToken) {
       that.getAccessToken(that.credentials, function(err, accessToken) {
         if (err) reject(err);
         else resolve(accessToken);
       });
     } else {
       setTimeout(function() {
-        that.getAccessToken(that.credentials, function(err, accessToken) {
-          if (err) reject(err);
-          else resolve(accessToken);
-        });
+        that.accessToken()
+          .then(resolve)
+          .catch(reject);
       }, 1000);
     }
   });
-}
+};
 
 AuthService.prototype.getAccessToken = function (credentials, cb) {
   var that = this;
 
   if (!that.cache.get('accessToken')) {
-    that.isGettingAccessTokenFlag = true;
+    that.isGettingAccessToken = true;
 
     getAccessTokenFromSAP(credentials)
       .then(function (tokenData) {
-        that.isGettingAccessTokenFlag = false;
-
         that.cache.set(
           'accessToken',
           tokenData.access_token,
           tokenData.expires_in / 2
         );
 
+        that.isGettingAccessToken = false;
         cb(null, tokenData.access_token);
       })
       .catch(function(err) {
+        that.isGettingAccessToken = false;
         return cb(err);
       });
   } else {
     that.cache.get('accessToken', cb);
   }
-}
+};
 
 function getAccessTokenFromSAP(credentials) {
   var options = {
