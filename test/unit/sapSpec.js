@@ -1,39 +1,40 @@
 'use strict';
 
 var nock = require('nock');
+var sinon = require('sinon');
 var expect = require('chai').expect;
+var Promise = require('es6-promise').Promise;
 var Sap = require('../../index');
-var credentials = require('../support/testCredentials');
+var testCredentials = require('../support/testCredentials');
 
 describe('Sap', function () {
   this.timeout(6000);
 
   describe('execute', function () {
     var options,
-      sapHelper = new Sap(credentials),
-      mockToken = 'mock_token',
-      expectedResult = { 'id': '1' };
-
-    nock('https://my-eu.sapanywhere.com:443/oauth2', {
-      reqheaders: { 'content-type': 'application/x-www-form-urlencoded' }
-    })
-      .post('/token?client_id=' + credentials.client_id +
-        '&client_secret=' + credentials.client_secret +
-        '&grant_type=refresh_token&refresh_token=' +
-        credentials.refresh_token)
-      .reply(200, {
-        access_token: mockToken
-      });
+        sapHelper,
+        accessToken,
+        mockToken = 'mock_token',
+        expectedResult = { 'id': '1' },
+        credentials = testCredentials;
 
     beforeEach(function () {
       options = {
         method: 'GET',
         path: 'Customers'
       };
+
+      credentials = JSON.parse(JSON.stringify(testCredentials));
+      sapHelper = new Sap(credentials);
+      accessToken = sinon.stub(sapHelper.authService, 'accessToken');
+      accessToken.returns(Promise.resolve('mock_token'));
+    });
+
+    afterEach(function () {
+      accessToken.restore();
     });
 
     it('sends a custom GET request', function (done) {
-
       nock(sapHelper.httpUri)
         .get('/' + sapHelper.version +
           '/' + options.path +
@@ -70,7 +71,7 @@ describe('Sap', function () {
 
       sapHelper.execute(options, function (err, data, status) {
         expect(status).to.equal(201);
-        expect(data).to.eql(1);
+        expect(data).to.equal(1);
         done();
       });
     });
@@ -101,25 +102,18 @@ describe('Sap', function () {
 
     describe('when unable to authorize', function () {
       it('passes an error to the callback', function (done) {
+        var authError = new Error('Mock error message');
         credentials.client_id = 'invalid';
 
-        var badAuthRequest = nock('https://my-eu.sapanywhere.com:443/oauth2', {
-          reqheaders: { 'content-type': 'application/x-www-form-urlencoded' }
-        })
-          .post('/token?client_id=' + credentials.client_id +
-            '&client_secret=' + credentials.client_secret +
-            '&grant_type=refresh_token' +
-            '&refresh_token=' + credentials.refresh_token)
-          .reply(200, {
-            error: 'mock_error',
-            error_description: 'Mock error description',
-          });
-
+        // create new sapHelper with invalid credentials
         sapHelper = new Sap(credentials);
 
+        // re-stub accessToken
+        accessToken = sinon.stub(sapHelper.authService, 'accessToken');
+        accessToken.returns(Promise.reject(authError));
+
         sapHelper.execute(options, function (err, data, status, headers) {
-          expect(err.message).to.eql('Mock error description');
-          expect(badAuthRequest.isDone()).to.be.true;
+          expect(err.message).to.equal(authError.message);
           done();
         });
       });

@@ -33,8 +33,8 @@ describe('End-to-end tests', function () {
         var executeAsPromised = function () {
           return new Promise(function(resolve, reject) {
             sapHelper.execute(options, function (err, data) {
-              if (err) { reject(err); }
-              else { resolve(data); }
+              if (err) reject(err);
+              else resolve(data);
             });
           });
         };
