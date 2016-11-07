@@ -2,10 +2,9 @@
 
 var request = require('request');
 var Promise = require('es6-promise').Promise;
+var NodeCache = require('node-cache');
 
 function AuthService(credentials) {
-  var that = this;
-
   if (!credentials) {
     throw new Error('SAP - Please provide credentials.');
   } else if (
@@ -18,14 +17,57 @@ function AuthService(credentials) {
     this.credentials = credentials;
   }
 
-  this.tokenPromise = new Promise(function(resolve, reject) {
-    getAccessToken(that.credentials)
-      .then(resolve)
-      .catch(reject);
+  this.cache = new NodeCache(60 * 60);
+  this.isGettingAccessTokenFlag = false;
+}
+
+AuthService.prototype.accessToken = function () {
+  var that = this;
+
+  return new Promise(function(resolve, reject) {
+    if (!that.isGettingAccessTokenFlag) {
+      that.getAccessToken(that.credentials, function(err, accessToken) {
+        if (err) reject(err);
+        else resolve(accessToken);
+      });
+    } else {
+      setTimeout(function() {
+        that.getAccessToken(that.credentials, function(err, accessToken) {
+          if (err) reject(err);
+          else resolve(accessToken);
+        });
+      }, 1000);
+    }
   });
 }
 
-function getAccessToken(credentials) {
+AuthService.prototype.getAccessToken = function (credentials, cb) {
+  var that = this;
+
+  if (!that.cache.get('accessToken')) {
+    that.isGettingAccessTokenFlag = true;
+
+    getAccessTokenFromSAP(credentials)
+      .then(function (tokenData) {
+        that.isGettingAccessTokenFlag = false;
+
+        that.cache.set(
+          'accessToken',
+          tokenData.access_token,
+          tokenData.expires_in / 2
+        );
+
+        cb(null, tokenData.access_token);
+      })
+      .catch(function(err) {
+        return cb(err);
+      });
+  } else {
+    cb (null, that.cache.get('accessToken'));
+  }
+}
+
+function getAccessTokenFromSAP(credentials) {
   var options = {
     method: 'POST',
     url: 'https://my-eu.sapanywhere.com:443/oauth2/token' +
@@ -43,13 +85,9 @@ function getAccessToken(credentials) {
 
       if (body) { data = JSON.parse(body); }
 
-      if (err) {
-        reject(err);
-      } else if (!err && data.error) {
-        reject(new Error(data.error_description));
-      } else {
-        resolve(data.access_token);
-      }
+      if (err) reject(err);
+      else if (!err && data.error) reject(new Error(data.error_description));
+      else resolve(data);
     });
   });
 }
