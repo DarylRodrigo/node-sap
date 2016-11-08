@@ -51,15 +51,21 @@ Resource.prototype.findAll = function (filter) {
     path: that.resourceName
   };
 
-  if (filter) requestParams.params = { "filter": filter };
+  if (filter) requestParams.params = { 'filter': filter };
 
   return new Promise(function (resolve, reject) {
     // check if caching is on
     if (that.isCaching) {
       that.cache.get(that.resourceName, function (error, val) {
-        if (error) reject(error);
+        // notifies cache.get error and continues with execute request
+        if (error) {
+          console.error('Error getting resource from cache, ' +
+          'proceeding to get resource from SAP');
+        }
 
-        if (val === undefined) {
+        if (val) {
+          resolve(val);
+        } else {
           that.sapHelper.execute(requestParams, function (error, data, status) {
             if (error) reject(error);
             else if (!error && status >= 400) {
@@ -68,14 +74,16 @@ Resource.prototype.findAll = function (filter) {
 
               reject(error);
             } else {
+              // resolves with findAll results regardless of cache set success
               that.cache.set(that.resourceName, data, function (err, success) {
-                if (!err && success) resolve(data);
-                else reject(err);
+                if (err || !success) {
+                  console.error('Error setting resource to cache, proceeding.');
+                }
               });
+
+              resolve(data);
             }
           });
-        } else {
-          resolve(val);
         }
       });
     } else {
@@ -105,11 +113,17 @@ Resource.prototype.findById = function(id, filter) {
 
     if (filter) requestParams.params = { "filter": filter };
 
-    that.sapHelper.execute(requestParams, function (error, data) {
+    that.sapHelper.execute(requestParams, function (error, data, status) {
       if (error) reject(error);
+      else if (!error && status >= 400) {
+        error = new Error(status + ' error' +
+          (data && data.errorCode ? ': ' + data.message : ''));
+
+        reject(error);
+      }
       else resolve(data);
-    })
-  })
+    });
+  });
 }
 
 Resource.prototype.updateById = function(id, body) {
@@ -122,8 +136,14 @@ Resource.prototype.updateById = function(id, body) {
       body: body
     };
 
-    that.sapHelper.execute(requestParams, function (error, data) {
+    that.sapHelper.execute(requestParams, function (error, data, status) {
       if (error) reject(error);
+      else if (!error && status >= 400) {
+        error = new Error(status + ' error' +
+          (data && data.errorCode ? ': ' + data.message : ''));
+
+        reject(error);
+      }
       else resolve(data);
     });
   });
