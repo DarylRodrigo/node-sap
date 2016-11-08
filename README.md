@@ -149,6 +149,11 @@ sap.execute(options, function(err, data, status, headers) {
 
 ## Changelog
 
+#### Versions `< 3.1.0`
+
+* **Important:** versions prior to `3.1.0` do not handle token expiry/renewal and have been deprecated.
+* Only exposed a class-level `execute` method. Did not support resource creation and convenience methods.
+
 #### Versions `< 3.0.0`
 
 * The module was initialized when importing:
