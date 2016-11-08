@@ -19,10 +19,10 @@ Include the following lines at the top of your file, where `credentials` points 
 
 ```js
 // app.js
-var sapHelper = require('node-sap');
+var nodeSap = require('node-sap');
 var credentials = require('./auth');
 
-var sap = new sapHelper(credentials);
+var sap = new nodeSap(credentials);
 
 // auth.json
 {
@@ -32,9 +32,11 @@ var sap = new sapHelper(credentials);
 }
 ```
 
+node-sap automatically handles authentication, token expiry and renewal. In case of an error authenticating, the current version will reattempt the authentication request after 1 second and throw an error if the second attempt fails.
+
 #### `Creating resources`
 
-For your convenience the module creates resources which have the standard CRUD methods (minus the D, as sap doesnt allow you to delete objects). In order to create a resource, instantiate the module and use the `createResource` function to return a class which all the methods associated with it. Note that promises are returned from the resource creator.
+For your convenience the module creates resources which have the standard CRUD methods (minus the D, as sap doesn't allow you to delete objects). In order to create a resource, instantiate the module and use the `createResource` function to return a class which all the methods associated with it. Note that promises are returned from the resource creator. Also added in this module is the ability to cache resources (**only applied to findAll method**) - by setting the cached option as true you can enable this option, see example below.
 
 #### Example: Creating a `Customer` Resource
 
@@ -60,8 +62,8 @@ Customer.create(body)
 #### Example: finding all resources with email of "example@sap.com"
 
 ```
-var filter = "id eq 'example@sap.co'"
-Customer.findll(filter)
+var filter = "email eq 'example@sap.co'"
+Customer.findAll(filter)
 .then( function (_id) {
     // do something with id
 })
@@ -82,6 +84,12 @@ List of functions - note that the filter parameter is optional
 
 a more extensive list of filters can be found [here](https://doc-eu.sapanywhere.com/api/spec/query)
 
+#### Example: caching a resource
+Use the `stdTTL` and `checkPeriod` in order to set how long you want the cache to last. Please make sure you set cache to true if you want to enable caching.
+
+```
+var Customer = sapHelper.createResource("Customers", {cache:true, stdTTL: 120, checkPeriod: 60});
+```
 
 #### `execute()`
 
@@ -101,7 +109,7 @@ The `execute` method passes four arguments to the handler callback:
 * a `status` code integer
 * a `headers` object
 
-#### Example: `GET` request
+#### Example: `GET` request
 
 For example, to fetch a list of all products and expand their skus:
 
@@ -141,6 +149,11 @@ sap.execute(options, function(err, data, status, headers) {
 
 ## Changelog
 
+#### Versions `< 3.1.0`
+
+* **Important:** versions prior to `3.1.0` do not handle token expiry/renewal and have been deprecated.
+* Only exposed a class-level `execute` method. Did not support resource creation and convenience methods.
+
 #### Versions `< 3.0.0`
 
 * The module was initialized when importing:
@@ -178,6 +191,6 @@ $ `npm test`
 $ `npm run e2e-tests`
 ```
 
-**NOTE:** the end-to-end tests purposefully hit the live SAP API, but only execute `GET` requests. Additional tests that perform other CRUD operations on the live API are skipped by default. You can change this by removing `.skip` (see comment in `test/e2e/e2eSpec.js`).
+**NOTE:** the end-to-end tests purposefully hit the live SAP API, but only execute `GET` requests. Additional tests that perform other CRUD operations on the live API are skipped by default. You can change this by removing `.skip` (see comments in e2e test files).
 
 Tests use the [mocha](https://github.com/mochajs/mocha) framework, [chai](https://github.com/chaijs/chai) for BDD-style assertions, [nock](https://github.com/node-nock/nock) for mocking HTTP requests, and [sinon](https://github.com/sinonjs/sinon) for mocks, stubs and spies.

@@ -1,25 +1,22 @@
 'use strict';
 
-var request = require('request');
-var Resource = require('./services/resourceService');
-var SapRequest = require('./services/executeService');
+var Resource = require('./services/resource');
+var SapHelper = require('./services/sapHelper');
 
 function Sap(credentials) {
   this.credentials = credentials;
   this.httpUri = 'https://api-eu.sapanywhere.com:443';
   this.version = 'v1';
 
-  this.sapRequest = new SapRequest(this.credentials);
+  this.sapHelper = new SapHelper(this.credentials);
 }
 
 Sap.prototype.execute = function (args, callback) {
-  this.sapRequest.execute(args, function(error, data, status, headers) {
-    callback (error, data, status, headers);
-  })
+  this.sapHelper.execute(args, callback);
 };
 
-Sap.prototype.createResource = function (resourceName) {
-  return new Resource(resourceName, this.sapRequest);
+Sap.prototype.createResource = function (resourceName, options) {
+  return new Resource(resourceName, this.sapHelper, options);
 }
 
 module.exports = Sap;
