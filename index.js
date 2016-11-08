@@ -1,7 +1,7 @@
 'use strict';
 
-var Resource = require('./services/resourceService');
-var SapHelper = require('./services/executeService');
+var Resource = require('./services/resource');
+var SapHelper = require('./services/sapHelper');
 
 function Sap(credentials) {
   this.credentials = credentials;

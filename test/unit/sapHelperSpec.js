@@ -4,7 +4,7 @@ var nock = require('nock');
 var sinon = require('sinon');
 var expect = require('chai').expect;
 var Promise = require('es6-promise').Promise;
-var SapHelper = require('../../services/executeService');
+var SapHelper = require('../../services/sapHelper');
 var testCredentials = require('../support/testCredentials');
 
 describe('SapHelper', function () {

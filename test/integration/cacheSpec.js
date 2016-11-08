@@ -5,7 +5,7 @@ var expect = require('chai').expect;
 var Sap = require('../../index');
 var credentials = require('../support/testCredentials');
 
-describe.skip('Cache', function () {
+describe('Cache', function () {
   this.timeout(6000);
 
   describe('execute', function () {
@@ -27,7 +27,7 @@ describe.skip('Cache', function () {
         credentials.refresh_token)
       .reply(200, {
         access_token: mockToken,
-        expires_in: 43200
+        expires_in: 43199
       });
 
     beforeEach(function () {
@@ -64,7 +64,7 @@ describe.skip('Cache', function () {
         .catch(done);
     });
 
-    it('should refresh catch after expiry', function (done) {
+    it('should refresh cache after expiry', function (done) {
       setTimeout( function() {
         nock(sapHelper.httpUri)
           .get('/' + sapHelper.version +
