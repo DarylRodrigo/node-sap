@@ -8,12 +8,13 @@ var Resource = require('../../services/resourceService');
 
 chai.use(sinonChai);
 
-describe('resource', function () {
+describe.only('resource', function () {
   var resource,
       resourceName = 'testResource',
       sapHelper = {
         execute: function () {}
       },
+      requestParams,
       options,
       execute;
 
@@ -45,19 +46,18 @@ describe('resource', function () {
   });
 
   describe('create', function () {
-    var requestBody,
-        expectedReqArgs;
+    var requestBody;
 
     beforeEach(function () {
       requestBody = {};
-      expectedReqArgs = {
+      requestParams = {
         method: 'POST',
         path: resourceName,
         body: requestBody
       };
 
       execute = sinon.stub(resource.sapHelper, 'execute');
-      execute.withArgs(expectedReqArgs).yields(null, 1, 201);
+      execute.withArgs(requestParams).yields(null, 1, 201);
     });
 
     afterEach(function () {
@@ -67,7 +67,7 @@ describe('resource', function () {
     it('executes a POST request', function (done) {
       resource.create(requestBody)
         .then(function () {
-          expect(execute).to.have.been.calledWith(expectedReqArgs);
+          expect(execute).to.have.been.calledWith(requestParams);
           done();
         })
         .catch(done);
@@ -81,5 +81,56 @@ describe('resource', function () {
         })
         .catch(done);
     });
+
+    describe('when an error occurs during the request', function () {
+      it('rejects with an error', function (done) {
+        var sampleError = new Error('Sample error description');
+
+        execute.withArgs(requestParams).yields(sampleError);
+
+        resource.create(requestBody)
+          .then(function () {
+            throw new Error('Promise resolved instead of rejecting');
+          })
+          .catch(function (err) {
+            expect(err.message).to.equal(sampleError.message);
+            done();
+          });
+      });
+    });
+
+    describe('when the request returns a 400 status or above', function () {
+      it('rejects with an error', function (done) {
+        var statusError = new Error('404 error: sample error message');
+
+        execute.withArgs(requestParams)
+          .yields(
+            null,
+            {errorCode: 12345, message: 'sample error message'},
+            404
+          );
+
+        resource.create(requestBody)
+          .then(function () {
+            throw new Error('Promise resolved instead of rejecting');
+          })
+          .catch(function (err) {
+            expect(err.message).to.equal(statusError.message);
+            done();
+          });
+      });
+    });
+  });
+
+  describe('findAll', function () {
+    
+  });
+
+  describe('findById', function () {
+
+  });
+
+  describe('updateById', function () {
+
   });
 });

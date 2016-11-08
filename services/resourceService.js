@@ -80,7 +80,6 @@ Resource.prototype.findAll = function (filter) {
       });
     } else {
       // if caching is off, execute request
-      // TODO: handle error statuses
       that.sapHelper.execute(requestParams, function (error, data, status) {
         if (error) reject(error);
         else if (!error && status >= 400) {
