@@ -96,8 +96,8 @@ describe('AuthService', function () {
     });
 
     describe('when attempting multiple authorization requests', function () {
-      it('waits for 1s before re-attempting', function (done) {
-        authService.isGettingAccessTokenFlag = true;
+      it('waits for 1s and isGettingAccessToken to be false before re-attempting', function (done) {
+        authService.isGettingAccessToken = true;
         var timerStart = new Date().getTime();
 
         authService.accessToken()
@@ -108,6 +108,7 @@ describe('AuthService', function () {
             expect(duration).to.be.above(1000);
             done();
           });
+        authService.isGettingAccessToken = false;
       });
     });
 
