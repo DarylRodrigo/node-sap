@@ -18,23 +18,27 @@ describe('Cache', function () {
     var cacheOpts = {isCaching: true, stdTTL: 1, checkPeriod: 1}
     var Customer = sapHelper.createResource("Customers", cacheOpts);
 
-    nock('https://my-eu.sapanywhere.com:443/oauth2', {
-      reqheaders: { 'content-type': 'application/x-www-form-urlencoded' }
-    })
-      .post('/token?client_id=' + credentials.client_id +
-        '&client_secret=' + credentials.client_secret +
-        '&grant_type=refresh_token&refresh_token=' +
-        credentials.refresh_token)
-      .reply(200, {
-        access_token: mockToken,
-        expires_in: 43199
-      });
-
     beforeEach(function () {
       options = {
         method: 'GET',
         path: 'Customers'
       };
+
+      nock('https://my-eu.sapanywhere.com:443/oauth2', {
+        reqheaders: { 'content-type': 'application/x-www-form-urlencoded' }
+      })
+        .post('/token?client_id=' + credentials.client_id +
+          '&client_secret=' + credentials.client_secret +
+          '&grant_type=refresh_token&refresh_token=' +
+          credentials.refresh_token)
+        .reply(200, {
+          access_token: mockToken,
+          expires_in: 43199
+        });
+    });
+
+    afterEach(function () {
+      nock.cleanAll();
     });
 
     it('should use cache on second round', function (done) {

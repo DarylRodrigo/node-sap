@@ -15,8 +15,8 @@
   ],
   "main": "index.js",
   "scripts": {
-    "test": "mocha test/unit/**/*Spec.js",
-    "e2e-tests": "mocha test/e2e/**/*Spec.js"
+    "test": "mocha test/unit test/integration",
+    "e2e-tests": "mocha test/e2e"
   },
   "eslintConfig": {
     "extends": "eslint:recommended",
