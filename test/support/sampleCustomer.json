@@ -1,0 +1,12 @@
+{
+  "customerName": "node-sap-test-user",
+  "lastName": "node",
+  "firstName":"sap",
+  "phone": "123456789",
+  "email": "INSERT_UNIQUE_EMAIL_HERE",
+  "status": "ACTIVE",
+  "dateOfBirth": "2014-04-20T16:20:00.000Z",
+  "customerType": "INDIVIDUAL_CUSTOMER",
+  "stage": "CUSTOMER",
+  "marketingStatus": "SUBSCRIBED"
+}

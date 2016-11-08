@@ -5,17 +5,17 @@ var Promise = require('es6-promise').Promise;
 var Sap = require('../../index');
 var credentials = require('../support/testCredentials');
 
-describe('End-to-end tests', function () {
+describe('Sap e2e tests', function () {
   this.timeout(6000);
   var sapHelper = new Sap(credentials);
 
-  var options = {
-    method: 'GET',
-    path: 'Products',
-    params: { expand: 'skus' }
-  };
-
   describe('execute', function () {
+    var options = {
+      method: 'GET',
+      path: 'Products',
+      params: { expand: 'skus' }
+    };
+
     describe('GET', function () {
       it('sends a custom GET request', function (done) {
         sapHelper.execute(options, function (err, data, status, headers) {
@@ -74,10 +74,14 @@ describe('End-to-end tests', function () {
         sapHelper.execute(options, function (err, data, status, headers) {
           expect(status).to.equal(201);
           expect(headers.server).to.equal('SAP');
-          expect(data).to.be.above(0);
+          expect(data).to.be.a.number;
           done();
         });
       });
+    });
+
+    describe.skip('PUT/PATCH', function () {
+      // TODO: write PUT test
     });
   });
 });

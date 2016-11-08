@@ -5,6 +5,8 @@ var Promise = require('es6-promise').Promise;
 var NodeCache = require('node-cache');
 
 function AuthService(credentials) {
+  this.authorisationAttempts = 0;
+
   if (!credentials) {
     throw new Error('SAP - Please provide credentials.');
   } else if (
