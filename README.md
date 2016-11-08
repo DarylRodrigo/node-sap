@@ -42,14 +42,14 @@ For your convenience the module creates resources which have the standard CRUD m
 
 For example, to instantiate a Customer resource.
 
-```
+```js
 var sap = new sapHelper(credentials);
 var Customer = sap.createResource("Customers");
 ```
 
 #### Example: Using a resource to create an instance of said resource
 
-```
+```js
 Customer.create(body)
 .then( function (_id) {
     // do something with id
@@ -61,7 +61,7 @@ Customer.create(body)
 
 #### Example: finding all resources with email of "example@sap.com"
 
-```
+```js
 var filter = "email eq 'example@sap.co'"
 Customer.findAll(filter)
 .then( function (_id) {
@@ -74,20 +74,22 @@ Customer.findAll(filter)
 
 List of functions - note that the filter parameter is optional
 
-`Customer.create(body)`
+```js
+Customer.create(body)
 
-`Customer.findAll(filter)`
+Customer.findAll(filter)
 
-`Customer.findById(id, filter)`
+Customer.findById(id, filter)
 
-`Customer.updateById(id, body)`
+Customer.updateById(id, body)
+```
 
 a more extensive list of filters can be found [here](https://doc-eu.sapanywhere.com/api/spec/query)
 
 #### Example: caching a resource
 Use the `stdTTL` and `checkPeriod` in order to set how long you want the cache to last. Please make sure you set cache to true if you want to enable caching.
 
-```
+```js
 var Customer = sapHelper.createResource("Customers", {cache:true, stdTTL: 120, checkPeriod: 60});
 ```
 
@@ -191,6 +193,6 @@ $ `npm test`
 $ `npm run e2e-tests`
 ```
 
-**NOTE:** the end-to-end tests purposefully hit the live SAP API, but only execute `GET` requests. Additional tests that perform other CRUD operations on the live API are skipped by default. You can change this by removing `.skip` (see comments in e2e test files).
+**NOTE:** the end-to-end tests purposefully hit the live SAP API, including POSTING and PATCHING. Please make sure you are using test API credentials.
 
 Tests use the [mocha](https://github.com/mochajs/mocha) framework, [chai](https://github.com/chaijs/chai) for BDD-style assertions, [nock](https://github.com/node-nock/nock) for mocking HTTP requests, and [sinon](https://github.com/sinonjs/sinon) for mocks, stubs and spies.

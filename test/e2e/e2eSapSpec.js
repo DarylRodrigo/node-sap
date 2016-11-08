@@ -52,11 +52,7 @@ describe('Sap e2e tests', function () {
       });
     });
 
-    /* * * * * * * * * * * * * * * * * * * * * * * *
-    The following tests modify the live SAP API.
-    To run them, remove the `.skip` on the next line
-    * * * * * * * * * * * * * * * * * * * * * * * */
-    describe.skip('POST', function () {
+    describe('POST', function () {
       it('sends a custom POST request', function (done) {
         options = {
           method: 'POST',
